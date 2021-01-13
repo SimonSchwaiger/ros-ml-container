@@ -1,18 +1,29 @@
 #!/bin/bash
-rm .plaidml
 
-mkdir src
+#mkdir src
 # git clone ros packages here
 
-mkdir app
+#mkdir app
 # put runnable scripts in here
 
+rm .plaidml
+
+#echo "{
+#    "PLAIDML_DEVICE_IDS":[
+#        "llvm_cpu.0"
+#    ],
+#    "PLAIDML_EXPERIMENTAL":false
+#}" >> .plaidml
+
+
+# enable plaidml gpu support in container
 echo "{
     "PLAIDML_DEVICE_IDS":[
-        "llvm_cpu.0"
+        "opencl_amd_gfx1010.0"
     ],
-    "PLAIDML_EXPERIMENTAL":false
-}" >> .plaidml
+    "PLAIDML_EXPERIMENTAL":true
+} " >> .plaidml
+
 
 docker build -t fhtw3dof .
 
