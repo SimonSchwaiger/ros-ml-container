@@ -1,4 +1,4 @@
-# mir_search
+# ROS ML Container
 ROS Noetic Container for Machine Learning with switchable graphics acceleration methods.
 
 # Install docker
