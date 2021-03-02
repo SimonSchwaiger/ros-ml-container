@@ -22,7 +22,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
         chmod a+r $XAUTH
     fi
     # run container with necessary args
-    xhost +
+    #xhost +
     docker run -it \
                 --rm \
                 --env="DISPLAY=$DISPLAY" \
@@ -35,7 +35,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
 elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
     # CPU
     # run normally, without passing through any devices
-    xhost +
+    #xhost +
     docker run -it \
                 --rm \
                 -e DISPLAY=$DISPLAY \
@@ -44,7 +44,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
 else
     # OPENSOURCE and AMDPRO
     # run container in normal mode but pass through dri and kfd devices
-    xhost +
+    #xhost +
     docker run -it \
                 --rm \
                 -e DISPLAY=$DISPLAY \
