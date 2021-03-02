@@ -23,7 +23,9 @@ Example usage:
 'GRAPHICS_PLATFORM=amdpro ./buildandrun.sh'
 
 Possible values are cpu (no acceleration), opensource (intel and amd open-source), amdpro (amdgpu-pro), nvidia (container-toolkit).
-For use of the amdgpu-pro driver, amd opencl must run on the host and the amdgpu-pro-20.45* tar file must be downloaded manually and put into the same directory as the dockerfile. For use of cuda, the nvidia proprietary driver must be installed on the host, along with nvidia-docker2.
+For use of the amdgpu-pro driver, amd opencl must run on the host and the amdgpu-pro-20.45* tar file must be downloaded manually and put into the same directory as the dockerfile. For use of cuda, the nvidia proprietary driver must be installed on the host, along with the nvidia container toolkit. Pudget Systems has a good guide for that:
+
+https://www.pugetsystems.com/labs/hpc/Workstation-Setup-for-Docker-with-the-New-NVIDIA-Container-Toolkit-nvidia-docker2-is-deprecated-1568/
 
 # Usage
 

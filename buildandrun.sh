@@ -4,7 +4,7 @@
 # if GRAPHICS_PLATFORM is null or not set, use cpu
 GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-cpu}"
 # build container
-docker build -t mir_search --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM .
+docker build -t ros_ml_container --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM .
 
 echo Using graphics platform $GRAPHICS_PLATFORM
 
@@ -30,8 +30,8 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
                 --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
                 --env="XAUTHORITY=$XAUTH" \
                 --volume="$XAUTH:$XAUTH" \
-                --runtime=nvidia \
-                mir_search:latest /bin/bash -c "chmod +x /app/app.sh && /app/app.sh"
+                --gpus all \
+                ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
     # CPU
     # run normally, without passing through any devices
@@ -40,7 +40,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 --rm \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
-                mir_search:latest /bin/bash -c "chmod +x /app/app.sh && /app/app.sh"
+                ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 else
     # OPENSOURCE and AMDPRO
     # run container in normal mode but pass through dri and kfd devices
@@ -51,5 +51,5 @@ else
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 --device=/dev/dri \
                 --device=/dev/kfd \
-                mir_search:latest /bin/bash -c "chmod +x /app/app.sh && /app/app.sh"
+                ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 fi

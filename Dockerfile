@@ -33,7 +33,6 @@ ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
             libgl1-mesa-glx libgl1-mesa-dri
 
 # manually install amdgpu pro components alongside amdgpu
-# this horribleness works for 64 bit apps, 32 bit ones can be flaky due to unmet dependencies
 # (this hybrid approach has been working best for me so far, until amd can get their rocm drivers under control)
 ONBUILD RUN cd $AMDGPUDIRNAME \
     && ./amdgpu-install -y --no-dkms \
@@ -70,15 +69,50 @@ ONBUILD RUN cd $AMDGPUDIRNAME \
 ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
     clinfo x11vnc xvfb
 
-# set up base image for nvidia proprietary driver 
-# according to http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration
-FROM ros:noetic-robot-focal as build_nvidia
+# set up base image for nvidia container toolkit 
+# according to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html
+FROM nvidia/cuda:11.2.1-runtime-ubuntu20.04 as build_nvidia
 
-# nvidia-container-runtime
-ONBUILD ENV NVIDIA_VISIBLE_DEVICES \
-    ${NVIDIA_VISIBLE_DEVICES:-all}
-ONBUILD ENV NVIDIA_DRIVER_CAPABILITIES \
-    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+# recreate ros-noetic-focal-base image
+# https://github.com/osrf/docker_images/blob/df19ab7d5993d3b78a908362cdcd1479a8e78b35/ros/noetic/ubuntu/focal/ros-core/Dockerfile
+ONBUILD RUN echo 'Etc/UTC' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    apt-get update && \
+    apt-get install -q -y --no-install-recommends tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+# install packages
+ONBUILD RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    dirmngr \
+    gnupg2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# setup keys and sources
+ONBUILD RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+ONBUILD RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list
+
+# setup environment
+ONBUILD ENV LANG C.UTF-8
+ONBUILD ENV LC_ALL C.UTF-8
+
+# install bootstrap tools
+ONBUILD RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-vcstools \
+    && rm -rf /var/lib/apt/lists/*
+
+# install ros packages
+ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-noetic-ros-base=1.5.0-1* \
+    && rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
+ONBUILD RUN rosdep init && \
+  rosdep update --rosdistro noetic
+
+#TODO link tensorflow to cuda by setting necessary environment variables, need an nvidia gpu to test that however
 
 
 #############################################################
@@ -99,6 +133,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-venv \
+    python3-tk \
     && python3 -m venv ~/myenv
 
 # upgrade to latest pip
@@ -122,19 +157,19 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
 
 # install plaidml, gym and scipy, tensorflow and matplotlib with gui for machine learning
 RUN /bin/bash -c "source ~/myenv/bin/activate \ 
-    && pip3 install gym scipy \
-    && pip3 install -U plaidml-keras \
-    && pip3 uninstall -y enum34 \
-    pip3 install tensorflow \
-    && apt -y install python3-tk \
+    && pip3 install gym \
+    && pip3 install scipy \
+    && pip3 install plaidml-keras \
+    && pip3 install tensorflow \
     && pip3 install matplotlib \
     && deactivate"
+    #&& pip3 uninstall -y enum34 \
 
 # copy over ros packages
 COPY ./src /catkin_ws/src
 
 # install ros dependencies
-RUN rosdep init && rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
+RUN rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
 
 # compile workspace
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash \
