@@ -15,7 +15,7 @@ FROM ros:noetic-robot-focal as build_intel
 
 ONBUILD RUN apt-get update && apt-get -y install \
     libgl1-mesa-glx libgl1-mesa-dri \
-    ocl-icd-libopencl1 opencl-headers clinfo ocl-icd-opencl-dev
+    ocl-icd-libopencl1 opencl-headers clinfo ocl-icd-opencl-dev intel-opencl-icd
 
 # if env is set to amdpro, copy amdgpu pro driver into container and install it
 FROM ros:noetic-robot-focal as build_amdpro
