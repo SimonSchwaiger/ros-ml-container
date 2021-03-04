@@ -10,6 +10,8 @@ plaidml-setup
 # start ros nodes and put them to the background
 #roslaunch mairobot MairobotClickAndGo.launch &
 #roslaunch saimon SAImon.launch coll_map:=parkour.yaml run_on_real_robot:=false &
-roslaunch mairobot Mairobot.launch &
+#roslaunch mairobot Mairobot.launch &
 sleep 7
-python3
+#python3 saimon_parkour.py
+#python3
+bash

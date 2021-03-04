@@ -10,6 +10,13 @@ FROM ros:noetic-robot-focal as build_opensource
 
 ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
 
+# for intel, the generic opencl libraries are installed alongside mesa updates
+FROM ros:noetic-robot-focal as build_intel
+
+ONBUILD RUN apt-get update && apt-get -y install \
+    libgl1-mesa-glx libgl1-mesa-dri \
+    ocl-icd-libopencl1 opencl-headers clinfo ocl-icd-opencl-dev
+
 # if env is set to amdpro, copy amdgpu pro driver into container and install it
 FROM ros:noetic-robot-focal as build_amdpro
 
@@ -160,10 +167,11 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install gym \
     && pip3 install scipy \
     && pip3 install plaidml-keras \
-    && pip3 install tensorflow \
+    && pip3 install 'h5py<3.0' \
     && pip3 install matplotlib \
     && deactivate"
     #&& pip3 uninstall -y enum34 \
+    #&& pip3 install tensorflow \
 
 # copy over ros packages
 COPY ./src /catkin_ws/src

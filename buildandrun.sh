@@ -22,7 +22,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
         chmod a+r $XAUTH
     fi
     # run container with necessary args
-    #xhost +
+    #xhost + #TODO: check if xhost + is necessary on some os'
     docker run -it \
                 --rm \
                 --env="DISPLAY=$DISPLAY" \
@@ -41,8 +41,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
-else
-    # OPENSOURCE and AMDPRO
+elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
     # run container in normal mode but pass through dri and kfd devices
     #xhost +
     docker run -it \
@@ -51,5 +50,15 @@ else
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 --device=/dev/dri \
                 --device=/dev/kfd \
+                ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
+else
+    # OPENSOURCE and INTEL
+    # run container in normal mode but pass through dri device
+    #xhost +
+    docker run -it \
+                --rm \
+                -e DISPLAY=$DISPLAY \
+                -v /tmp/.X11-unix:/tmp/.X11-unix \
+                --device=/dev/dri \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 fi
