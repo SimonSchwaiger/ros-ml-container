@@ -10,26 +10,14 @@ echo Using graphics platform $GRAPHICS_PLATFORM
 
 if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
     # NVIDIA
-    # setup xauth
-    XAUTH=/tmp/.docker.xauth
-    if [ ! -f $XAUTH ]; then
-        xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
-        if [ ! -z "$xauth_list" ]; then
-            echo $xauth_list | xauth -f $XAUTH nmerge -
-        else
-            touch $XAUTH
-        fi
-        chmod a+r $XAUTH
-    fi
     # run container with necessary args
     #xhost + #TODO: check if xhost + is necessary on some os'
     docker run -it \
                 --rm \
-                --env="DISPLAY=$DISPLAY" \
-                --env="QT_X11_NO_MITSHM=1" \
-                --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-                --env="XAUTHORITY=$XAUTH" \
-                --volume="$XAUTH:$XAUTH" \
+                --name ros_ml_container \
+                -e DISPLAY=$DISPLAY \
+                -v /tmp/.X11-unix:/tmp/.X11-unix \
+                -v "$PWD/app":/app \
                 --gpus all \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
@@ -38,16 +26,20 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
     #xhost +
     docker run -it \
                 --rm \
+                --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
+                -v "$PWD/app":/app \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
     # run container in normal mode but pass through dri and kfd devices
     #xhost +
     docker run -it \
                 --rm \
+                --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
+                -v "$PWD/app":/app \
                 --device=/dev/dri \
                 --device=/dev/kfd \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
@@ -57,8 +49,10 @@ else
     #xhost +
     docker run -it \
                 --rm \
+                --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
+                -v "$PWD/app":/app \
                 --device=/dev/dri \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 fi
