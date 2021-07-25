@@ -4,14 +4,17 @@ ARG GRAPHICS_PLATFORM=cpu
 
 # cpu base image does not need to be modified
 FROM ros:noetic-robot-focal as build_cpu
+ENV DEBIAN_FRONTEND="noninteractive" 
 
 # opensource gpu acceleration needs mesa updates
 FROM ros:noetic-robot-focal as build_opensource
+ENV DEBIAN_FRONTEND="noninteractive" 
 
 ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
 
 # for intel, the generic opencl libraries are installed alongside mesa updates
 FROM ros:noetic-robot-focal as build_intel
+ENV DEBIAN_FRONTEND="noninteractive" 
 
 ONBUILD RUN apt-get update && apt-get -y install \
     libgl1-mesa-glx libgl1-mesa-dri \
@@ -19,9 +22,10 @@ ONBUILD RUN apt-get update && apt-get -y install \
 
 # if env is set to amdpro, copy amdgpu pro driver into container and install it
 FROM ros:noetic-robot-focal as build_amdpro
+ENV DEBIAN_FRONTEND="noninteractive" 
 
-ONBUILD ENV AMDGPUDRIVERFILE="amdgpu-pro-20.45-1188099-ubuntu-20.04.tar.xz"
-ONBUILD ENV AMDGPUDIRNAME="amdgpu-pro-20.45-1188099-ubuntu-20.04"
+ONBUILD ENV AMDGPUDRIVERFILE="amdgpu-pro-21.20-1271047-ubuntu-20.04.tar.xz"
+ONBUILD ENV AMDGPUDIRNAME="amdgpu-pro-21.20-1271047-ubuntu-20.04"
 
 ONBUILD ADD ./$AMDGPUDRIVERFILE .
 
@@ -79,6 +83,7 @@ ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
 # set up base image for nvidia container toolkit 
 # according to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html
 FROM nvidia/cuda:11.2.1-runtime-ubuntu20.04 as build_nvidia
+ENV DEBIAN_FRONTEND="noninteractive" 
 
 # recreate ros-noetic-focal-base image
 # https://github.com/osrf/docker_images/blob/df19ab7d5993d3b78a908362cdcd1479a8e78b35/ros/noetic/ubuntu/focal/ros-core/Dockerfile
@@ -107,19 +112,20 @@ ONBUILD RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     python3-rosdep \
     python3-rosinstall \
-    python3-vcstools \
-    && rm -rf /var/lib/apt/lists/*
+    python3-vcstools
 
 # install ros packages
 ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-base=1.5.0-1* \
-    && rm -rf /var/lib/apt/lists/*
+    ros-noetic-ros-base=1.5.0-1* 
 
 # bootstrap rosdep
 ONBUILD RUN rosdep init && \
   rosdep update --rosdistro noetic
 
 #TODO link tensorflow to cuda by setting necessary environment variables, need an nvidia gpu to test that however
+# thanks ritschie
+ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 
 #############################################################
@@ -145,8 +151,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # upgrade to latest pip
 RUN /bin/bash -c "source ~/myenv/bin/activate \
-    && pip3 install --upgrade pip \
-    && deactivate"
+    && pip3 install --upgrade pip"
 
 # install ros python prerequisites
 RUN /bin/bash -c "source ~/myenv/bin/activate \
@@ -159,23 +164,21 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     empy \
     catkin_tools \
     defusedxml \
-    && pip3 install --upgrade setuptools \
-    && deactivate"
+    && pip3 install --upgrade setuptools"
 
-# install plaidml, gym and scipy, tensorflow and matplotlib with gui for machine learning
+# install machine learning and other desired python3 modules here
+# if nvidia is used, i recommend tensorflow + keras; for everyone else, plaidml + keras
+# plaidml and tensorflow cannot co-exist, therefore tf is not installed here.
 RUN /bin/bash -c "source ~/myenv/bin/activate \ 
     && pip3 install gym \
     && pip3 install scipy \
     && pip3 install sympy \
     && pip3 install plaidml-keras \
     && pip3 install 'h5py<3.0' \
-    && pip3 install matplotlib \
-    && deactivate \
-    && pip3 install tensorflow"
-    #&& pip3 uninstall -y enum34 \
+    && pip3 install matplotlib"
     #&& pip3 install tensorflow \
 
-# copy over ros packages
+# copy over ros packages from ros workspace
 COPY ./src /catkin_ws/src
 
 # install ros dependencies
@@ -186,5 +189,6 @@ RUN /bin/bash -c "source /opt/ros/noetic/setup.bash \
     && cd catkin_ws \
     && catkin_make "
 
-# mount application folder to container
-# COPY ./app /app
+# cleanup
+RUN rm -rf /var/lib/apt/lists/*
+
