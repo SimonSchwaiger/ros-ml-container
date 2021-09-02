@@ -4,17 +4,17 @@ ARG GRAPHICS_PLATFORM=cpu
 
 # cpu base image does not need to be modified
 FROM ros:noetic-robot-focal as build_cpu
-ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
 
 # opensource gpu acceleration needs mesa updates
 FROM ros:noetic-robot-focal as build_opensource
-ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
 
 ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
 
 # for intel, the generic opencl libraries are installed alongside mesa updates
 FROM ros:noetic-robot-focal as build_intel
-ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
 
 ONBUILD RUN apt-get update && apt-get -y install \
     libgl1-mesa-glx libgl1-mesa-dri \
@@ -22,7 +22,7 @@ ONBUILD RUN apt-get update && apt-get -y install \
 
 # if env is set to amdpro, copy amdgpu pro driver into container and install it
 FROM ros:noetic-robot-focal as build_amdpro
-ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
 
 ONBUILD ENV AMDGPUDRIVERFILE="amdgpu-pro-21.20-1271047-ubuntu-20.04.tar.xz"
 ONBUILD ENV AMDGPUDIRNAME="amdgpu-pro-21.20-1271047-ubuntu-20.04"
@@ -83,7 +83,7 @@ ONBUILD RUN apt-get update && apt-get install -y --no-install-recommends \
 # set up base image for nvidia container toolkit 
 # according to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html
 FROM nvidia/cuda:11.2.1-runtime-ubuntu20.04 as build_nvidia
-ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
 
 # recreate ros-noetic-focal-base image
 # https://github.com/osrf/docker_images/blob/df19ab7d5993d3b78a908362cdcd1479a8e78b35/ros/noetic/ubuntu/focal/ros-core/Dockerfile
@@ -166,17 +166,13 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     defusedxml \
     && pip3 install --upgrade setuptools"
 
-# install machine learning and other desired python3 modules here
+# install machine learning and other desired python3 modules using the requirements.txt file
 # if nvidia is used, i recommend tensorflow + keras; for everyone else, plaidml + keras
-# plaidml and tensorflow cannot co-exist, therefore tf is not installed here.
-RUN /bin/bash -c "source ~/myenv/bin/activate \ 
-    && pip3 install gym \
-    && pip3 install scipy \
-    && pip3 install sympy \
-    && pip3 install plaidml-keras \
-    && pip3 install 'h5py<3.0' \
-    && pip3 install matplotlib"
-    #&& pip3 install tensorflow \
+# plaidml and tensorflow cannot co-exist
+ADD ./requirements.txt .
+
+RUN /bin/bash -c "source ~/myenv/bin/activate \
+    && pip3 install -r requirements.txt"
 
 # copy over ros packages from ros workspace
 COPY ./src /catkin_ws/src
