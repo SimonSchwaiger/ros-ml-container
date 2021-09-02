@@ -46,10 +46,11 @@ Some means of acceleration require more packages to be installed on your host sy
 
 A [Skript](./buildandrun.sh) is provided to automatically build and run the container. The means of GPU acceleration can be passed through using the *GRAPHICS_PLATFORM* environment variable, the default is __cpu__. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the *GRAPHICS_PLATFORM* will cause a full rebuild of the container.
 
-Example for running the container with acceleration set to __opensource__: *GRAPHICS_PLATFORM=opensource ./buildandrun.sh*
+Example for running the container with acceleration set to __opensource__:
+*GRAPHICS_PLATFORM=opensource ./buildandrun.sh*
 
 Upon the first build, an *src* folder and *requirements.txt* are created in the scirpts directory, if they do not already exist. *src* is intended for ROS packages to be placed into. During the build, this folder is copied into the image, dependencies of all packages are installed and the workspace is compiled. The Python3 packages defined in *requirements.txt* are installed using Pip in a virtual environment located at */myenv* within the image. Since the ROS and Python packages are part of the image, changes in *src* or *requirements.txt* cause a partial rebuild and changes made in the container do not carry over from container to host.
 
 The [app](./app) folder is intended to contain configuration files (for example *.rviz*) and scripts. This folder is mounted to the container at */app* and is automatically changed into upon container startup. This means, that scripts can be edited on the host and tested inside the container, without requiring a rebuild. Additionally, saved data and generated plots can be saved in this directory in order to be shared between host and different container sessions.
 
-Containers are automatically deleted after shutdown. The generated images must be [removed manually](https://docs.docker.com/engine/reference/commandline/rmi/)
+Containers are automatically deleted after shutdown. The generated images must be [removed manually](https://docs.docker.com/engine/reference/commandline/rmi/).
