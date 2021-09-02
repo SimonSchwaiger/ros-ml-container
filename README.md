@@ -23,13 +23,13 @@ These GPU acceleration methods are supported:
 You will need to have [Docker](https://www.docker.com/) installed on your system. On Linux, docker can be [installed natively](https://docs.docker.com/engine/install/ubuntu/), while on Windows, it is required to use the [WSL2 backend](https://docs.docker.com/desktop/windows/install/). 
 
 - __Linux__:
---* [Install Docker natively.](https://docs.docker.com/engine/install/ubuntu/)
---* Allow Docker to run without _sudo_ using the _sudo groupadd docker && sudo usermod -aG docker $USER_ command. Afterwards, log out and in again to apply changes.
+  * [Install Docker natively.](https://docs.docker.com/engine/install/ubuntu/)
+  * Allow Docker to run without _sudo_ using the _sudo groupadd docker && sudo usermod -aG docker $USER_ command. Afterwards, log out and in again to apply changes.
 
 - __Windows__:
---* Windows 10 Update 21h1 or newer is required for the Linux GUI to be forwarded.
---* [Install Docker using the WSL2 backend.](https://docs.docker.com/desktop/windows/install/)
---* [Install WSL GPU drivers for Windows](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)
+  * Windows 10 Update 21h1 or newer is required for the Linux GUI to be forwarded.
+  * [Install Docker using the WSL2 backend.](https://docs.docker.com/desktop/windows/install/)
+  * [Install WSL GPU drivers for Windows](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)
 
 Some means of acceleration require more packages to be installed on your host system:
 
