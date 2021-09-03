@@ -9,7 +9,7 @@ These GPU acceleration methods are supported:
 
 - __opensource__: Passes through open source drivers of your video card on Linux. This works for Nvidia, AMD and Intel GPUs and passes through OpenGL capabilities. Open source drivers currently do not allow acceleration of machine learning tasks, since they either require __CUDA__ on Nvidia or __OpenCL__ on AMD and Intel. However, using this method will accelerate ROS simulations and visualisations. __If you are on Linux and not sure what GPU acceleration your system supports, it is probably this one.__
 
-- __intel__: Same as opensource, but it will also install and pass through the Intel OpenCL device. TODO Installation on host
+- __intel__: Same as opensource, but it will also install and pass through the Intel OpenCL device.
 
 - __amdpro__: Installs the [amdgpu-pro]() driver within the container in order to register your AMD GPU as an OpenCL device. In addition to OpenGL, this method also passes through OpenCL in order to enable GPU accelerated machine learning.
 
@@ -27,14 +27,14 @@ You will need to have [Docker](https://www.docker.com/) installed on your system
   * Allow Docker to run without _sudo_ using the _sudo groupadd docker && sudo usermod -aG docker $USER_ command. Afterwards, log out and in again to apply changes.
 
 - __Windows__:
-  * Windows 10 Update 21h1 or newer is required for the Linux GUI to be forwarded.
+  * Windows 10 Update 21h1 or newer is required for the GPU being passed through to WSL2.
   * [Install Docker using the WSL2 backend.](https://docs.docker.com/desktop/windows/install/)
   * [Install WSL GPU preview drivers for Windows](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
   * __Only required on Windows 10, since Windows 11 has GUI forwarding built-in__: [Follow this guide to install and configure VcXsrv on Windows and the *DISPLAY* environment variable on WSL2](https://github.com/microsoft/WSL/issues/4106#issuecomment-876470388)
   * It may be necessary to bypass the Windows firewall for port 6000 in order for the GUI to show up. See [this](https://stackoverflow.com/questions/61860208/wsl-2-run-graphical-linux-desktop-applications-from-windows-10-bash-shell-erro) and [this](https://github.com/cascadium/wsl-windows-toolbar-launcher/blob/master/README.md#troubleshooting) for troubleshooting.
 
 
-Some means of acceleration require more packages to be installed on your host system:
+In Linux, some means of acceleration require more packages to be installed on your host system:
 
 - __opensource__: Open source drivers for your video card (On most distributions, open source drivers are installed for AMD and Intel GPUs by default).
 

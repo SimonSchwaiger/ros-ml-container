@@ -8,7 +8,7 @@ GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-cpu}"
 mkdir -p src
 
 # check if requirements file exists and create it with example packages if it isn't
-if ! -f  "requirements.txt"; then
+if [ ! -f  "requirements.txt" ]; then
     echo "numpy # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
 
@@ -70,11 +70,12 @@ elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
         docker run -it \
                 --rm \
                 --name ros_ml_container \
+                --privileged \
                 -e DISPLAY=$DISPLAY \
-                -v /tmp/.X11-unix:/tmp/.X11-unix \
+                --device=/dev/dri:/dev/dri \
+                --device=/dev/dxg:/dev/dxg \
+                -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
                 -v "$PWD/app":/app \
-                --device=/dev/dri \
-                --device=/dev/dxg \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 else
     # OPENSOURCE and INTEL
