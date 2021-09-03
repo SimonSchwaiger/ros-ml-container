@@ -127,6 +127,13 @@ ONBUILD RUN rosdep init && \
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
+# wsl2 gpu acceleration needs mesa updates
+FROM ros:noetic-robot-focal as build_wsl2
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+
+ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
+#TODO: Install directml runtimes in order to be used from python (e.g. tensorflow-directml)
+# Without the runtime, only OpenGL is really useful - but it's better than nothing
 
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########

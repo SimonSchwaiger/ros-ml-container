@@ -15,7 +15,7 @@ These GPU acceleration methods are supported:
 
 - __nvidia__: Passes through OpenGL and [CUDA](https://developer.nvidia.com/cuda-downloads) capabilities using the [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
 
-- __wsl2__: Passes through the [Windows Subsystem for Linux (WSL2)](https://docs.microsoft.com/en-us/windows/wsl/about) virtual GPU to the container in order to allow for OpenGL, CUDA and DirectML acceleration. __This method is required in order to get GPU acceleration working when running Docker from Windows using the WSL2 backend. TODO - This does not work yet.__
+- __wsl2__: Passes through the [Windows Subsystem for Linux (WSL2)](https://docs.microsoft.com/en-us/windows/wsl/about) virtual GPU to the container in order to allow for OpenGL and DirectML acceleration. __This method is currently required in order to get GPU acceleration working when running Docker from Windows using the WSL2 backend.__ The Nvidia Container Toolkit can work with Docker's WSL2 engine, but this approach is currently not yet validated by Nvidia. See [here](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#installing-insider-preview-builds) for more information.
 
 
 ## Prerequisites
@@ -29,7 +29,10 @@ You will need to have [Docker](https://www.docker.com/) installed on your system
 - __Windows__:
   * Windows 10 Update 21h1 or newer is required for the Linux GUI to be forwarded.
   * [Install Docker using the WSL2 backend.](https://docs.docker.com/desktop/windows/install/)
-  * [Install WSL GPU drivers for Windows](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)
+  * [Install WSL GPU preview drivers for Windows](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+  * __Only required on Windows 10, since Windows 11 has GUI forwarding built-in__: [Follow this guide to install and configure VcXsrv on Windows and the *DISPLAY* environment variable on WSL2](https://github.com/microsoft/WSL/issues/4106#issuecomment-876470388)
+  * It may be necessary to bypass the Windows firewall for port 6000 in order for the GUI to show up. See [this](https://stackoverflow.com/questions/61860208/wsl-2-run-graphical-linux-desktop-applications-from-windows-10-bash-shell-erro) and [this](https://github.com/cascadium/wsl-windows-toolbar-launcher/blob/master/README.md#troubleshooting) for troubleshooting.
+
 
 Some means of acceleration require more packages to be installed on your host system:
 

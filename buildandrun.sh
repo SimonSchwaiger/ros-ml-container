@@ -52,6 +52,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 -v "$PWD/app":/app \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
+    # AMDPRO
     # run container in normal mode but pass through dri and kfd devices
     docker run -it \
                 --rm \
@@ -61,6 +62,19 @@ elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
                 -v "$PWD/app":/app \
                 --device=/dev/dri \
                 --device=/dev/kfd \
+                ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
+elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
+    # WSL2
+    # run container in normal mode and pass through dri device for OpenGL and dxg Device for DirectX 12
+    # https://fossbytes.com/directx-on-linux-wsl2-support-windows-10/
+        docker run -it \
+                --rm \
+                --name ros_ml_container \
+                -e DISPLAY=$DISPLAY \
+                -v /tmp/.X11-unix:/tmp/.X11-unix \
+                -v "$PWD/app":/app \
+                --device=/dev/dri \
+                --device=/dev/dxg \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 else
     # OPENSOURCE and INTEL
