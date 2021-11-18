@@ -185,7 +185,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
 COPY ./src /catkin_ws/src
 
 # install ros dependencies
-RUN rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
+RUN apt update && rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
 
 # compile workspace
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash \
