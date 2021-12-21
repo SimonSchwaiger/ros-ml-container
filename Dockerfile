@@ -129,7 +129,10 @@ ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPA
 
 # wsl2 gpu acceleration needs mesa updates
 FROM ros:noetic-robot-focal as build_wsl2
-ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive"
+
+# Set LD library path as in https://github.com/microsoft/wslg/tree/main/samples/container
+ONBUILD ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 
 ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
 #TODO: Install directml runtimes in order to be used from python (e.g. tensorflow-directml)

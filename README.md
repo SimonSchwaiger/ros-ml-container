@@ -52,6 +52,8 @@ A [Skript](./buildandrun.sh) is provided to automatically build and run the cont
 Example for running the container with acceleration set to __opensource__:
 *GRAPHICS_PLATFORM=opensource ./buildandrun.sh*
 
+__If you are running the container in Windows under WSL2, you need execute the script from within the Ubuntu shell of WSL. If the script does not execute due to files having the wrong line endings, you can run *find . -type f -print0 | xargs -0 dos2unix* in the ros-ml-container directory to change all the line endings to the unix style.__
+
 Upon the first build, an *src* folder and *requirements.txt* are created in the scirpts directory, if they do not already exist. *src* is intended for ROS packages to be placed into. During the build, this folder is copied into the image, dependencies of all packages are installed and the workspace is compiled. The Python3 packages defined in *requirements.txt* are installed using Pip in a virtual environment located at */myenv* within the image. Since the ROS and Python packages are part of the image, changes in *src* or *requirements.txt* cause a partial rebuild and changes made in the container do not carry over from container to host.
 
 The [app](./app) folder is intended to contain configuration files (for example *.rviz*) and scripts. This folder is mounted to the container at */app* and is automatically changed into upon container startup. This means, that scripts can be edited on the host and tested inside the container, without requiring a rebuild. Additionally, saved data and generated plots can be saved in this directory in order to be shared between host and different container sessions.
