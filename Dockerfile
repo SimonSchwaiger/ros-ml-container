@@ -124,8 +124,8 @@ ONBUILD RUN rosdep init && \
 
 #TODO link tensorflow to cuda by setting necessary environment variables, need an nvidia gpu to test that however
 # thanks ritschie
-ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
-ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+ONBUILD ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
+ONBUILD ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 # wsl2 gpu acceleration needs mesa updates
 FROM ros:noetic-robot-focal as build_wsl2
