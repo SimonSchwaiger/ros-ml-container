@@ -152,12 +152,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-rviz-visual-tools
 
 # install python3, pip and venv
+# you can change your preferred python version here and it will be installed from the deadsnakes ppa
+# some tensorflow implementations (such as gym baselines 2) will require python 3.7
+ENV PYTHONVER=3.8
+
+RUN apt-get update && apt-get install -y software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y python$PYTHONVER python$PYTHONVER-dev python$PYTHONVER-tk
+
+RUN apt-get update && apt-get install cmake libopenmpi-dev python3-dev zlib1g-dev
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-venv \
     python3-tk \
-    && python3 -m venv ~/myenv
+    && pip3 install virtualenv \
+    && virtualenv -p /usr/bin/python$PYTHONVER ~/myenv
 
 # upgrade to latest pip
 RUN /bin/bash -c "source ~/myenv/bin/activate \
