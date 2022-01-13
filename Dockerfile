@@ -2,19 +2,22 @@
 # possible values are cpu (no acceleration), opensource (intel and amd open-source), amdpro (amdgpu-pro), nvidia (container-toolkit)
 ARG GRAPHICS_PLATFORM=cpu
 
+# default python version is 3.8
+ARG PYTHONVER=3.8
+
 # cpu base image does not need to be modified
 FROM ros:noetic-robot-focal as build_cpu
-ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive"
 
 # opensource gpu acceleration needs mesa updates
 FROM ros:noetic-robot-focal as build_opensource
-ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive"
 
 ONBUILD RUN apt-get update && apt-get -y install libgl1-mesa-glx libgl1-mesa-dri
 
 # for intel, the generic opencl libraries are installed alongside mesa updates
 FROM ros:noetic-robot-focal as build_intel
-ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive"
 
 ONBUILD RUN apt-get update && apt-get -y install \
     libgl1-mesa-glx libgl1-mesa-dri \
@@ -22,7 +25,7 @@ ONBUILD RUN apt-get update && apt-get -y install \
 
 # if env is set to amdpro, copy amdgpu pro driver into container and install it
 FROM ros:noetic-robot-focal as build_amdpro
-ONBUILD ENV DEBIAN_FRONTEND="noninteractive" 
+ONBUILD ENV DEBIAN_FRONTEND="noninteractive"
 
 ONBUILD ENV AMDGPUDRIVERFILE="amdgpu-pro-21.20-1271047-ubuntu-20.04.tar.xz"
 ONBUILD ENV AMDGPUDIRNAME="amdgpu-pro-21.20-1271047-ubuntu-20.04"
@@ -154,7 +157,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
 # some tensorflow implementations (such as gym baselines 2) will require python 3.7
-ENV PYTHONVER=3.8
+# Forward PYTHONVER argument to the current container
+ARG PYTHONVER
 
 RUN apt-get update && apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \

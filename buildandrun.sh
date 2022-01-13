@@ -3,6 +3,8 @@
 # possible values are cpu (no acceleration), opensource (intel and amd open-source), amdpro (amdgpu-pro), nvidia (container-toolkit)
 # if GRAPHICS_PLATFORM is null or not set, use cpu
 GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-cpu}"
+PYTHONVER="${PYTHONVER:-3.8}"
+DOCKER_RUN_ARGS="${DOCKER_RUN_ARGS:}"
 
 # check if src folder exists, if not it will be created
 mkdir -p src
@@ -19,9 +21,13 @@ if [ "$GRAPHICS_PLATFORM" == "amdpro" ] && [ ! -f "$AMDPROFILE" ]; then
 fi
 
 # build container
-docker build -t ros_ml_container --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM .
+docker build -t ros_ml_container \
+--build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
+--build-arg PYTHONVER=$PYTHONVER \
+.
 
 echo Using graphics platform $GRAPHICS_PLATFORM
+echo Using python version $PYTHONVER
 
 # Set xhost permissions for docker
 # TODO better solution
@@ -40,6 +46,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/app":/app \
+                $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
     # CPU
@@ -50,6 +57,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/app":/app \
+                $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
     # AMDPRO
@@ -60,6 +68,7 @@ elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/app":/app \
+                $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
                 --device=/dev/kfd \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
@@ -76,6 +85,7 @@ elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
                 --device=/dev/dxg:/dev/dxg \
                 -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
                 -v "$PWD/app":/app \
+                $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 else
     # OPENSOURCE and INTEL
@@ -86,6 +96,7 @@ else
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/app":/app \
+                $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 fi
