@@ -49,8 +49,13 @@ In Linux, some means of acceleration require more packages to be installed on yo
 
 A [Skript](./buildandrun.sh) is provided to automatically build and run the container. The means of GPU acceleration can be passed through using the *GRAPHICS_PLATFORM* environment variable, the default is __cpu__. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the *GRAPHICS_PLATFORM* will cause a full rebuild of the container.
 
-Example for running the container with acceleration set to __opensource__:
-*GRAPHICS_PLATFORM=opensource ./buildandrun.sh*
+
+Additionally, a python version other than 3.8 (the Ubuntu 20.04 default) can be specified using the *PYTHONVER* environment variable. 
+
+Arguments for the run command can be specified using the *DOCKER_RUN_ARGS* environment variable.
+
+Example for running the container with acceleration set to __opensource__, python version 3.7 and forwarding of port 6006 to the host:
+*GRAPHICS_PLATFORM=opensource PYTHONVER=3.7 DOCKER_RUN_ARGS="-p 6006:6006" ./buildandrun.sh*
 
 __If you are running the container in Windows under WSL2, you need execute the script from within the Ubuntu shell of WSL. If the script does not execute due to files having the wrong line endings, you can run *find . -type f -print0 | xargs -0 dos2unix* in the ros-ml-container directory to change all the line endings to the unix style.__
 
