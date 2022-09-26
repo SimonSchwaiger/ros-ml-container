@@ -164,7 +164,7 @@ RUN apt-get update && apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y python$PYTHONVER python$PYTHONVER-dev python$PYTHONVER-tk
 
-RUN apt-get update && apt-get install -y cmake libopenmpi-dev python3-dev zlib1g-dev imagemagick
+RUN apt-get update && apt-get install -y cmake libopenmpi-dev zlib1g-dev imagemagick
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
