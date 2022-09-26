@@ -151,7 +151,7 @@ FROM build_${GRAPHICS_PLATFORM}
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-desktop \
+    ros-noetic-desktop-full \
     ros-noetic-rviz-visual-tools
 
 # install python3, pip and venv
@@ -164,7 +164,7 @@ RUN apt-get update && apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y python$PYTHONVER python$PYTHONVER-dev python$PYTHONVER-tk
 
-RUN apt-get update && apt-get install cmake libopenmpi-dev python3-dev zlib1g-dev
+RUN apt-get update && apt-get install -y cmake libopenmpi-dev python3-dev zlib1g-dev imagemagick
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
@@ -203,13 +203,21 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
 COPY ./src /catkin_ws/src
 
 # install ros dependencies
-RUN apt update && rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
+RUN apt-get update && rosdep update && rosdep install --from-paths /catkin_ws/src -i -y --rosdistro noetic
 
 # compile workspace
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash \
     && cd catkin_ws \
     && catkin_make "
 
+# remove src folder used for compilation, since the real src folder will be mounted at runtime
+RUN rm -rf /catkin_ws/src
+
 # cleanup
 RUN rm -rf /var/lib/apt/lists/*
+
+# add entrypoint
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
 
