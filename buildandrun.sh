@@ -14,12 +14,6 @@ if [ ! -f  "requirements.txt" ]; then
     echo "numpy # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
 
-# if amdpro driver is used, download it if it is not already present
-AMDPROFILE="amdgpu-pro-21.20-1271047-ubuntu-20.04.tar.xz"
-if [ "$GRAPHICS_PLATFORM" == "amdpro" ] && [ ! -f "$AMDPROFILE" ]; then
-    wget --referer=http://support.amd.com  https://drivers.amd.com/drivers/linux/amdgpu-pro-21.20-1271047-ubuntu-20.04.tar.xz
-fi
-
 # build container
 docker build -t ros_ml_container \
 --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
