@@ -34,7 +34,6 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
     docker run -it \
                 --gpus all \
                 --privileged \
-                --network host \
                 --rm \
                 --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
