@@ -9,9 +9,9 @@ These GPU acceleration methods are supported:
 
 - __opensource__: Passes through open source drivers of your video card on Linux. This works for Nvidia, AMD and Intel GPUs and passes through OpenGL capabilities. Open source drivers currently do not allow acceleration of machine learning tasks, since they either require __CUDA__ on Nvidia or __OpenCL__ on AMD and Intel. However, using this method will accelerate ROS simulations and visualisations. __If you are on Linux and not sure what GPU acceleration your system supports, it is probably this one.__
 
-- __intel__: Same as opensource, but it will also install and pass through the Intel OpenCL device.
+- __intel__: Container and Python environment are based on the [Intel AI Toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html) to allow for accelerated computing using packages supported by Intel. __Requires a compatible 10th gen or higher Intel CPU.__
 
-- __amdpro__: Installs the [amdgpu-pro]() driver within the container in order to register your AMD GPU as an OpenCL device. In addition to OpenGL, this method also passes through OpenCL in order to enable GPU accelerated machine learning.
+- __amd__: Bases the Container on the latest [ROCm Container](https://rocmdocs.amd.com/en/latest/ROCm_Virtualization_Containers/ROCm-Virtualization-&-Containers.html). This enables acceleration using OpenGL, OpenCL and through protocols native to ROCm such as tensorflow-rocm.
 
 - __nvidia__: Passes through OpenGL and [CUDA](https://developer.nvidia.com/cuda-downloads) capabilities using the [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
 
@@ -38,29 +38,29 @@ In Linux, some means of acceleration require more packages to be installed on yo
 
 - __opensource__: Open source drivers for your video card (On most distributions, open source drivers are installed for AMD and Intel GPUs by default).
 
-- __intel__: Open source intel drivers with either the unofficial OpenCL loader from your Linux distribution (for example, for ubuntu the unofficial loader can be installed using _sudo apt install ocl-icd-opencl-dev_) or the official [OpenCL runtime for Intel processors](https://software.intel.com/content/www/us/en/develop/articles/opencl-drivers.html) installed.
+- __intel__: Same as opensource.
 
-- __amdpro__: Either the [amdgpu-pro](https://www.amd.com/en/support/kb/release-notes/rn-amdgpu-unified-linux-21-10) driver, the unofficial [opencl-amd aur package](https://aur.archlinux.org/packages/opencl-amd/) on Arch-based Linux distributions or the [ROCm-OpenCL-Runtime](https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime) must be installed in order to access your AMD GPU's OpenCL capabilities on the Linux host. __When using this type of acceleration the first time, the amdgpu-pro driver will automatically be downloaded and placed in the same directory as the build script, in order for the driver to be copied into and installed in the docker image.__
+- __amd__: Either the [amdgpu-pro](https://www.amd.com/en/support/kb/release-notes/rn-amdgpu-unified-linux-21-10) driver, the unofficial [opencl-amd aur package](https://aur.archlinux.org/packages/opencl-amd/) on Arch-based Linux distributions or the [ROCm-OpenCL-Runtime](https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime) must be installed in order to access your AMD GPU's OpenCL capabilities on the Linux host.
 
 - __nvidia__: [Proprietary Nvidia GPU driver](https://www.nvidia.com/de-de/drivers/unix/) and [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed on your system. Pudget Systems has a good [guide](https://www.pugetsystems.com/labs/hpc/Workstation-Setup-for-Docker-with-the-New-NVIDIA-Container-Toolkit-nvidia-docker2-is-deprecated-1568/) for the installation process. 
 
 
 ## Usage
 
-A [Skript](./buildandrun.sh) is provided to automatically build and run the container. The means of GPU acceleration can be passed through using the *GRAPHICS_PLATFORM* environment variable, the default is __cpu__. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the *GRAPHICS_PLATFORM* will cause a full rebuild of the container.
+A [Skript](./buildandrun.sh) is provided to automatically build and run the container. The means of GPU acceleration can be passed through using the `GRAPHICS_PLATFORM` environment variable, the default is __cpu__. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the `GRAPHICS_PLATFORM` will cause a full rebuild of the container.
 
 
-Additionally, a python version other than 3.8 (the Ubuntu 20.04 default) can be specified using the *PYTHONVER* environment variable. 
+Additionally, a python version other than 3.8 (the Ubuntu 20.04 default) can be specified using the `PYTHONVER` environment variable. 
 
-Arguments for the run command can be specified using the *DOCKER_RUN_ARGS* environment variable.
+Arguments for the run command can be specified using the `DOCKER_RUN_ARGS` environment variable.
 
 Example for running the container with acceleration set to __opensource__, python version 3.7 and forwarding of port 6006 to the host:
-*GRAPHICS_PLATFORM=opensource PYTHONVER=3.7 DOCKER_RUN_ARGS="-p 6006:6006" ./buildandrun.sh*
+`GRAPHICS_PLATFORM=opensource PYTHONVER=3.7 DOCKER_RUN_ARGS="-p 6006:6006" ./buildandrun.sh`
 
-__If you are running the container in Windows under WSL2, you need execute the script from within the Ubuntu shell of WSL. If the script does not execute due to files having the wrong line endings, you can run *find . -type f -print0 | xargs -0 dos2unix* in the ros-ml-container directory to change all the line endings to the unix style.__
+__If you are running the container in Windows under WSL2, you need execute the script from within the Ubuntu shell of WSL. If the script does not execute due to files having the wrong line endings, you can run `find . -type f -print0 | xargs -0 dos2unix` in the ros-ml-container directory to change all the line endings to the unix style.__
 
-Upon the first build, an *src* folder and *requirements.txt* are created in the scirpts directory, if they do not already exist. *src* is intended for ROS packages to be placed into. During the build, this folder is copied into the image, dependencies of all packages are installed and the workspace is compiled. The Python3 packages defined in *requirements.txt* are installed using Pip in a virtual environment located at */myenv* within the image. Since the ROS and Python packages are part of the image, changes in *src* or *requirements.txt* cause a partial rebuild and changes made in the container do not carry over from container to host.
+Upon the first build, an `src` folder and `requirements.txt` are created in the scirpts directory, if they do not already exist. `src` is intended for ROS packages to be placed into. During the build, this folder is copied into the image, dependencies of all packages are installed and the workspace is compiled. The Python3 packages defined in `requirements.txt` are installed using Pip in a virtual environment located at `/myenv` within the image. Since the ROS and Python packages are part of the image, changes in `src` or `requirements.txt` cause a partial rebuild and changes made in the container do not carry over from container to host.
 
-The [app](./app) folder is intended to contain configuration files (for example *.rviz*) and scripts. This folder is mounted to the container at */app* and is automatically changed into upon container startup. This means, that scripts can be edited on the host and tested inside the container, without requiring a rebuild. Additionally, saved data and generated plots can be saved in this directory in order to be shared between host and different container sessions.
+The [`app`](./app) folder is intended to contain configuration files (for example *.rviz*) and scripts. This folder is mounted to the container at `/app` and is automatically changed into upon container startup. This means, that scripts can be edited on the host and tested inside the container, without requiring a rebuild. Additionally, saved data and generated plots can be saved in this directory in order to be shared between host and different container sessions.
 
 Containers are automatically deleted after shutdown. The generated images must be [removed manually](https://docs.docker.com/engine/reference/commandline/rmi/).
