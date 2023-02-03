@@ -64,7 +64,7 @@ On Linux, some means of acceleration require more packages to be installed on yo
 <img src="./misc/XmingConfig.png" alt="Xming Configuration" style="max-width: 622" />
  
 2. Clone this repository
-3. Open the WSL2 terminal, navigate to the repository folder and run `bash buildandrun.sh`
+3. Open the WSL2 terminal, navigate to the repository folder and run `GRAPHICS_PLATFORM=wsl2 bash buildandrun.sh`
 
 __If you are running the container in Windows under WSL2, you need execute the script from within the Ubuntu shell of WSL. If the script does not execute due to files having the wrong line endings, you can run `find . -type f -print0 | xargs -0 dos2unix` in the ros-ml-container directory to change all the line endings to the unix style.__
 
