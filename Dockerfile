@@ -1,26 +1,26 @@
 # Default platform = opensource gpu acceleration
 ARG GRAPHICS_PLATFORM=standard
 # Default python version is 3.8
-ARG PYTHONVER=3.8
+ARG PYTHONVER=3.10
 
 # Create base images based on gpu acceleration
 ## Nvidia-based container
-FROM nvidia/cuda:11.2.1-runtime-ubuntu20.04 as build_nvidia
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04 as build_nvidia
 ONBUILD ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ONBUILD ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 ## Intel OneAPI Container
-FROM intel/oneapi-aikit:devel-ubuntu20.04 as build_intel
+FROM intel/oneapi-aikit:2023.1.0-devel-ubuntu22.04 as build_intel
 
 ## AMD ROCm Container
-FROM rocm/dev-ubuntu-20.04:latest as build_amd
+FROM rocm/dev-ubuntu-22.04:latest as build_amd
 
 ## Generic container with MESA
-FROM ubuntu:focal as build_standard
-FROM ubuntu:focal as build_opensource
+FROM ubuntu:jammy as build_standard
+FROM ubuntu:jammy as build_opensource
 
 ## Generic container for WSL
-FROM ubuntu:focal as build_wsl
+FROM ubuntu:jammy as build_wsl
 # Set LD library path as in https://github.com/microsoft/wslg/tree/main/samples/container
 ONBUILD ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 #TODO: Install directml runtimes in order to be used from python (e.g. tensorflow-directml)
