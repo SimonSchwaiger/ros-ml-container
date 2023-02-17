@@ -3,7 +3,7 @@
 # possible values are cpu (no acceleration), opensource (intel and amd open-source), amdpro (amdgpu-pro), nvidia (container-toolkit)
 # if GRAPHICS_PLATFORM is null or not set, use cpu
 GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-opensource}"
-PYTHONVER="${PYTHONVER:-3.8}"
+PYTHONVER="${PYTHONVER:-3.10}"
 DOCKER_RUN_ARGS="${DOCKER_RUN_ARGS:-"-p 8888:8888"}"
 
 # check if src folder exists, if not it will be created
@@ -11,7 +11,7 @@ mkdir -p src
 
 # check if requirements file exists and create it with example packages if it isn't
 if [ ! -f  "requirements.txt" ]; then
-    echo "numpy # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
+    echo "jupyterlab # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
 
 # build container
@@ -38,7 +38,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
                 --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
-                -v "$PWD/src":/catkin_ws/src \
+                -v "$PWD/src":/opt/ros2_ws/src \
                 -v "$PWD/app":/app \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
@@ -50,7 +50,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
-                -v "$PWD/src":/catkin_ws/src \
+                -v "$PWD/src":/opt/ros2_ws/src \
                 -v "$PWD/app":/app \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
@@ -62,7 +62,7 @@ elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
                 --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
-                -v "$PWD/src":/catkin_ws/src \
+                -v "$PWD/src":/opt/ros2_ws/src \
                 -v "$PWD/app":/app \
                 $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
@@ -80,7 +80,7 @@ elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
                 --device=/dev/dri:/dev/dri \
                 --device=/dev/dxg:/dev/dxg \
                 -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-                -v "$PWD/src":/catkin_ws/src \
+                -v "$PWD/src":/opt/ros2_ws/src \
                 -v "$PWD/app":/app \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
@@ -92,7 +92,7 @@ else
                 --name ros_ml_container \
                 -e DISPLAY=$DISPLAY \
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
-                -v "$PWD/src":/catkin_ws/src \
+                -v "$PWD/src":/opt/ros2_ws/src \
                 -v "$PWD/app":/app \
                 $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
