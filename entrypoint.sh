@@ -7,7 +7,7 @@ source /opt/ros/humble/setup.bash
 
 export JUPYTER_ENABLE_LAB=yes
 export JUPYTER_TOKEN=docker
-jupyter-lab --ip 0.0.0.0 -NotebookApp.token='ros_ml_container' --no-browser --allow-root &
+jupyter-lab --ip 0.0.0.0 -IdentityProvider.token='ros_ml_container' --no-browser --allow-root &
 
 exec "$@"
 
