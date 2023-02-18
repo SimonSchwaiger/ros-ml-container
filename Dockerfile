@@ -131,6 +131,9 @@ WORKDIR /
 # Fully install ros2 instead of bootstrapping it
 RUN apt-get update && apt-get install -y ros-humble-desktop
 
+# Install ignition
+RUN apt-get update && apt-get install -y ros-humble-ros-ign
+
 # Also install ignitio-edifice for gazebo simulation
 #TODO: Change to Webots? https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Webots.html
 #RUN apt-get update && apt-get install -y wget
@@ -210,6 +213,9 @@ RUN rm -rf /var/lib/apt/lists/*
 # Add ROS and venv sourcing to bashrc for interactive debugging
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
+
+# Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
+ENV SHELL=/bin/bash
 
 # Add entrypoint
 ADD entrypoint.sh /entrypoint.sh
