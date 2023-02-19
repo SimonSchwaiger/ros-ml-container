@@ -128,21 +128,15 @@ WORKDIR /
 ## Official ROS image recreated
 # ------------------------
 
+# Set ROS and ignition versions and install them
+ENV ROS_DISTRO humble
+ENV IGNITION_VERSION fortress
+
 # Fully install ros2 instead of bootstrapping it
-RUN apt-get update && apt-get install -y ros-humble-desktop
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools
 
-# Install ignition
-RUN apt-get update && apt-get install -y ros-humble-ros-ign
-
-# Also install ignitio-edifice for gazebo simulation
-#TODO: Change to Webots? https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Webots.html
-#RUN apt-get update && apt-get install -y wget
-#RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-#RUN http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-#RUN apt-get update && apt-get install -y ignition-edifice
-
-# Install Turtlebot 4 Packages for testing
-#RUN apt-get update && apt-get install -y ros-humble-turtlebot4-simulator ros-humble-irobot-create-nodes
+# Install ignition gazebo
+RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
 
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
@@ -151,18 +145,19 @@ RUN apt-get update && apt-get install -y ros-humble-ros-ign
 ARG PYTHONVER
 ARG GRAPHICS_PLATFORM
 
-RUN apt-get update && apt-get install -y software-properties-common \
+RUN apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y python$PYTHONVER python$PYTHONVER-dev python$PYTHONVER-tk
 
-RUN apt-get update && apt-get install -y cmake libopenmpi-dev zlib1g-dev imagemagick
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
     python3-pip \
     python3-venv \
-    python3-tk \
-    && pip3 install virtualenv
+    cmake \
+    libopenmpi-dev \
+    zlib1g-dev \
+    imagemagick
+
+RUN pip3 install virtualenv
 
 # Create virtualenv using the correct python interpreter
 # Intel is an edgecase here, since they offer a custom interpreter in the intel distribution for python
@@ -175,17 +170,14 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install --upgrade pip"
 
 # install ros python prerequisites
-#RUN /bin/bash -c "source ~/myenv/bin/activate \
-#    && pip3 install launchpadlib \
-#    wheel \
-#    && pip3 install rosdep \
-#    rosinstall_generator \
-#    wstool \
-#    rosinstall \
-#    empy \
-#    catkin_tools \
-#    defusedxml \
-#    && pip3 install --upgrade setuptools"
+RUN /bin/bash -c "source ~/myenv/bin/activate \
+    && pip3 install launchpadlib \
+    rosinstall_generator \
+    rosinstall \
+    empy \
+    catkin_tools \
+    lark \
+    && pip3 install --upgrade setuptools"
 
 # Install required python packages
 ADD ./requirements.txt .
@@ -193,14 +185,17 @@ ADD ./requirements.txt .
 RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install -r requirements.txt"
 
+# Install rqt for debugging
+RUN apt-get install -y --no-install-recommends ros-humble-rqt*
+
 # Copy ROS packages for compilation in container
 COPY ./src /opt/$ROS2_WS/src
 
 # Install ros dependencies
-RUN apt-get update && rosdep update && rosdep install --from-paths /opt/$ROS2_WS/src -i -y --rosdistro humble
+RUN apt-get update && rosdep update && rosdep install --from-paths /opt/$ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
 
 # Compile workspace
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash \
+RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
     && cd /opt/$ROS2_WS \
     && colcon build --symlink-install"
 
@@ -211,7 +206,8 @@ RUN rm -rf /opt/$ROS2_WS/src
 RUN rm -rf /var/lib/apt/lists/*
 
 # Add ROS and venv sourcing to bashrc for interactive debugging
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo ". /opt/ros2_ws/install/local_setup.bash" >> ~/.bashrc
 RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
 
 # Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
