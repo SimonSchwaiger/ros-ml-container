@@ -91,7 +91,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # install python packages
 RUN pip3 install -U \
-    argcomplete
+    argcomplete pytest
+# add pytest here manually as a workaround for intel-based builds
+
 # This is a workaround for pytest not found causing builds to fail
 # Following RUN statements tests for regression of https://github.com/ros2/ros2/issues/722
 RUN pip3 freeze | grep pytest \
@@ -136,7 +138,7 @@ ENV IGNITION_VERSION fortress
 RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools
 
 # Install ignition gazebo
-RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
+#RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
 
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
@@ -177,6 +179,8 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     empy \
     catkin_tools \
     lark \
+    lxml \
+    pytest \
     && pip3 install --upgrade setuptools"
 
 # Install required python packages
