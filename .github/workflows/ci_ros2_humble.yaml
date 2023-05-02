@@ -27,5 +27,5 @@ jobs:
       run: |
         mkdir src
         echo "jupyterlab" > requirements.txt
-        docker build . --tag ghcr.io/simonschwaiger/ros-ml-container:ros2_humble
+        docker build . --file .github/workflows/Dockerfile.ros2_humble --tag ghcr.io/simonschwaiger/ros-ml-container:ros2_humble
         docker push ghcr.io/simonschwaiger/ros-ml-container:ros2_humble
