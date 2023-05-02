@@ -25,5 +25,7 @@ jobs:
     
     - name: "Build the Docker image"
       run: |
-        docker build . --tag ghcr.io/SimonSchwaiger/ros-ml-container:ros1_noetic
-        docker push ghcr.io/SimonSchwaiger/ros-ml-container:ros1_noetic
+        mkdir src
+        echo "jupyterlab" > requirements.txt
+        docker build . --file .github/workflows/Dockerfile.ros1_noetic --tag ghcr.io/simonschwaiger/ros-ml-container:ros1_noetic
+        docker push ghcr.io/simonschwaiger/ros-ml-container:ros1_noetic
