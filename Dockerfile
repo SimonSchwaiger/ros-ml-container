@@ -62,7 +62,9 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
 
 # Install ROS
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-desktop-full ros-noetic-rviz ros-noetic-gmapping ros-noetic-dwa-local-planner ros-noetic-joint-state-publisher-gui
+    ros-noetic-desktop-full \
+    ros-noetic-rviz ros-noetic-rqt* \
+    ros-noetic-gmapping ros-noetic-dwa-local-planner ros-noetic-joint-state-publisher-gui
 
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
@@ -134,6 +136,10 @@ RUN rm -rf /var/lib/apt/lists/*
 # Add ROS sourcing to bashrc for interactive debugging
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 RUN echo "source /catkin_ws/devel/setup.bash" >> ~/.bashrc
+RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
+
+# Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
+ENV SHELL=/bin/bash
 
 # Add entrypoint
 ADD entrypoint.sh /entrypoint.sh

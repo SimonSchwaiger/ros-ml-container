@@ -11,8 +11,12 @@ mkdir -p src
 
 # check if requirements file exists and create it with example packages if it isn't
 if [ ! -f  "requirements.txt" ]; then
-    echo "numpy # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
+    echo "jupyterlab # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
+
+# check if jupyterlab config folder exists and create it if it does not
+# this allows the jupyterlab config to persist between sessions
+mkdir -p lab/workspaces
 
 # build container
 docker build -t ros_ml_container \
@@ -40,6 +44,7 @@ if [ "$GRAPHICS_PLATFORM" == "nvidia" ]; then
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/src":/catkin_ws/src \
                 -v "$PWD/app":/app \
+                -v "$PWD/lab":/root/.jupyter/lab \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
@@ -52,6 +57,7 @@ elif [ "$GRAPHICS_PLATFORM" == "cpu" ]; then
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/src":/catkin_ws/src \
                 -v "$PWD/app":/app \
+                -v "$PWD/lab":/root/.jupyter/lab \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
@@ -64,6 +70,7 @@ elif [ "$GRAPHICS_PLATFORM" == "amdpro" ]; then
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/src":/catkin_ws/src \
                 -v "$PWD/app":/app \
+                -v "$PWD/lab":/root/.jupyter/lab \
                 $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
                 --device=/dev/kfd \
@@ -82,6 +89,7 @@ elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
                 -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
                 -v "$PWD/src":/catkin_ws/src \
                 -v "$PWD/app":/app \
+                -v "$PWD/lab":/root/.jupyter/lab \
                 $DOCKER_RUN_ARGS \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
 else
@@ -94,6 +102,7 @@ else
                 -v /tmp/.X11-unix:/tmp/.X11-unix \
                 -v "$PWD/src":/catkin_ws/src \
                 -v "$PWD/app":/app \
+                -v "$PWD/lab":/root/.jupyter/lab \
                 $DOCKER_RUN_ARGS \
                 --device=/dev/dri \
                 ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
