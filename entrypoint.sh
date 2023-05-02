@@ -11,7 +11,7 @@ export JUPYTER_TOKEN=docker
 jupyter-lab --ip 0.0.0.0 -IdentityProvider.token='ros_ml_container' --no-browser --allow-root &
 
 # Start rosbridge server in the background for foxglove connection
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml &
+# ros2 launch rosbridge_server rosbridge_websocket_launch.xml &
 
 exec "$@"
 
