@@ -148,7 +148,7 @@ RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools 
 ARG PYTHONVER
 ARG GRAPHICS_PLATFORM
 
-RUN apt-get install -y software-properties-common \
+RUN apt-get update && apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y python$PYTHONVER python$PYTHONVER-dev python$PYTHONVER-tk
 
