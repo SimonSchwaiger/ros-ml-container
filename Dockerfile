@@ -63,7 +63,7 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
 # Install ROS
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-desktop-full \
-    ros-noetic-rviz ros-noetic-rqt* \
+    ros-noetic-rviz ros-noetic-rqt* ros-noetic-rosbridge-server\
     ros-noetic-gmapping ros-noetic-dwa-local-planner ros-noetic-joint-state-publisher-gui
 
 # install python3, pip and venv
@@ -97,6 +97,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install --upgrade pip"
 
 # install ros python prerequisites
+# twisted, openssl, autobahn, pymongo and Pillow are there to enable rosbridge server
 RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install launchpadlib \
     wheel \
@@ -107,6 +108,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     empy \
     catkin_tools \
     defusedxml \
+    twisted pyOpenSSL autobahn pymongo Pillow service-identity \
     && pip3 install --upgrade setuptools"
 
 # Install required python packages
