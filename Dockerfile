@@ -31,6 +31,7 @@ ONBUILD ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 
 ## Build container from specified source
 FROM build_${GRAPHICS_PLATFORM}
+LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -134,8 +135,8 @@ WORKDIR /
 ENV ROS_DISTRO humble
 ENV IGNITION_VERSION fortress
 
-# Fully install ros2 instead of bootstrapping it
-RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools
+# Fully install ros2 instead of bootstrapping it and install rqt for debugging and rosbridge for web-based visualisation
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-humble-rqt* ros-humble-rosbridge-server
 
 # Install ignition gazebo
 #RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
@@ -167,11 +168,13 @@ RUN if [ "$GRAPHICS_PLATFORM" = "intel" ]; then \
     virtualenv -p /opt/intel/oneapi/intelpython/latest/bin/python ~/myenv; else \
     virtualenv -p /usr/bin/python$PYTHONVER ~/myenv; fi
 
-# upgrade to latest pip
+# Upgrade to latest pip
 RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install --upgrade pip"
 
-# install ros python prerequisites
+# Install ros python prerequisites
+# Pytest is explicitly installed to handle the intel edgecase
+# Netifaces, pymongo and Pillow are installed for rosbridge
 RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install launchpadlib \
     rosinstall_generator \
@@ -181,6 +184,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     lark \
     lxml \
     pytest \
+    netifaces pymongo Pillow \
     && pip3 install --upgrade setuptools"
 
 # Install required python packages
@@ -188,9 +192,6 @@ ADD ./requirements.txt .
 
 RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install -r requirements.txt"
-
-# Install rqt for debugging
-RUN apt-get install -y --no-install-recommends ros-humble-rqt*
 
 # Copy ROS packages for compilation in container
 COPY ./src /opt/$ROS2_WS/src
