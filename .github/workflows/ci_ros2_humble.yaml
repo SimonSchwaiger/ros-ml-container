@@ -25,5 +25,7 @@ jobs:
     
     - name: "Build the Docker image"
       run: |
-        docker build . --tag ghcr.io/SimonSchwaiger/ros-ml-container:ros2_humble
-        docker push ghcr.io/SimonSchwaiger/ros-ml-container:ros2_humble
+        mkdir src
+        echo "jupyterlab" > requirements.txt
+        docker build . --tag ghcr.io/simonschwaiger/ros-ml-container:ros2_humble
+        docker push ghcr.io/simonschwaiger/ros-ml-container:ros2_humble
