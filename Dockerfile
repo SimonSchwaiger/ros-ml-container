@@ -184,6 +184,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     lark \
     lxml \
     pytest \
+    numpy \
     netifaces pymongo Pillow \
     && pip3 install --upgrade setuptools"
 
