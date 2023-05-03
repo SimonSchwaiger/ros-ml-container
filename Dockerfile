@@ -108,6 +108,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     empy \
     catkin_tools \
     defusedxml \
+    numpy \
     twisted pyOpenSSL autobahn pymongo Pillow service-identity \
     && pip3 install --upgrade setuptools"
 
