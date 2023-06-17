@@ -60,11 +60,11 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     libgl1-mesa-glx libgl1-mesa-dri
 
-# Install ROS
+# Install ROS tools, rviz and rqt for visualisation and rosbridge for web-based debugging
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-desktop-full \
-    ros-noetic-rviz ros-noetic-rqt* ros-noetic-rosbridge-server\
-    ros-noetic-gmapping ros-noetic-dwa-local-planner ros-noetic-joint-state-publisher-gui
+    ros-noetic-ros-base ros-noetic-rviz ros-noetic-rqt* ros-noetic-rosbridge-server
+    # Put these in manually if you want to run turtlebot simulaitons, as their dependencies are not correctly set
+    # ros-noetic-desktop-full ros-noetic-gmapping ros-noetic-dwa-local-planner ros-noetic-joint-state-publisher-gui
 
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
