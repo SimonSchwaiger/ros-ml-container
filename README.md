@@ -78,11 +78,11 @@ Both folders are mounted to the container at runtime. This means that changes ma
 
 # Advanced Features and GPU Acceleration
 
-The default configuration builds and starts the container in *opensource* mode and forwards port 8888 to the host system. This allows the JupyterLab GUI to be forwarded to the host and accessed [here](127.0.0.1:8888) (the password to access jupyterlab is *ros_ml_container*, but I suggest you change that in your local copy of the [entrypoint.sh](./entrypoint.sh) file).
+The default configuration builds and starts the container in *opensource* mode and forwards port 8888 to the host system. This allows the JupyterLab GUI to be forwarded to the host and accessed [here](127.0.0.1:8888) (the password to access jupyterlab is *ros_ml_container*, but I suggest you change that in your local copy of the [entrypoint.sh](./entrypoint.sh) file). Jupyterlab is automatically installed and started in the set up virtual environment to provide a simple way to open multiple terminals within the Docker container.
 
 ### These configurations can be done
 
-* A [Skript](./buildandrun.sh) is provided to automatically locally build and run the container. The means of GPU acceleration can be passed through using the `GRAPHICS_PLATFORM` environment variable. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the `GRAPHICS_PLATFORM` will cause a full rebuild of the container.
+* The build and run [script](./buildandrun.sh) is provided to automatically locally build and run the container. The means of GPU acceleration can be passed through using the `GRAPHICS_PLATFORM` environment variable. The first build will take quite a while, but consecutive builds will be faster, since docker caches each stage of the build. However, changing the `GRAPHICS_PLATFORM` will cause a full rebuild of the container.
 * Additionally, a Python version other than 3.8 (the Ubuntu 20.04 default) can be specified using the `PYTHONVER` environment variable. 
 * Arguments for the run command can be specified using the `DOCKER_RUN_ARGS` environment variable.
 
