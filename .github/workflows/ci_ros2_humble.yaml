@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "ros2_humble" ]
   pull_request:
-    branches: [ "ros2_humble" ]
+    branches: [ "ros2_humble", "main" ]
 
 jobs:
 
