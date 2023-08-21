@@ -122,6 +122,9 @@ RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools 
 # Install ignition gazebo
 #RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
 
+# Update os and ros packages due to fix buggy opengl
+RUN apt-get update && apt-get upgrade -y
+
 # install python3, pip and venv
 # you can change your preferred python version here and it will be installed from the deadsnakes ppa
 # some tensorflow implementations (such as gym baselines 2) will require python 3.7
