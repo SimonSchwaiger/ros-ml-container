@@ -136,7 +136,7 @@ ENV ROS_DISTRO humble
 ENV IGNITION_VERSION fortress
 
 # Fully install ros2 instead of bootstrapping it and install rqt for debugging and rosbridge for web-based visualisation
-RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-humble-rqt* ros-humble-rosbridge-server
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-$ROS_DISTRO-rqt* ros-$ROS_DISTRO-rosbridge-server
 
 # Install ignition gazebo
 #RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
