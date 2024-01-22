@@ -5,6 +5,7 @@
 GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-opensource}"
 PYTHONVER="${PYTHONVER:-3.8}"
 DOCKER_RUN_ARGS="${DOCKER_RUN_ARGS:-"-p 8888:8888"}"
+BUILD_LOCAL="${BUILD_LOCAL:-false}"
 
 # Check if container is already running and attach if it is
 if [ "$(docker ps -aq --filter status=running --filter name=ros_ml_container)" ]; then
@@ -41,11 +42,22 @@ if [ ! -f  "requirements.txt" ]; then
     echo "jupyterlab # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
 
-# Build container
-docker build -t ros_ml_container \
---build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
---build-arg PYTHONVER=$PYTHONVER \
-.
+# Check if container should be built locally (if GRAPHICS_PLATFORM has been changed or local build explicitly requested)
+if [ "$BUILD_LOCAL" == "false" ] && [ "$GRAPHICS_PLATFORM" == "opensource" ]; then
+    # Pull remote container and build
+    docker build -t ros_ml_container \
+    --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
+    --build-arg PYTHONVER=$PYTHONVER \
+    -f Dockerfile.remote \
+    .
+else
+    # Local container build
+    docker build -t ros_ml_container \
+    --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
+    --build-arg PYTHONVER=$PYTHONVER \
+    -f Dockerfile.local \
+    .
+fi
 
 if [ $? -ne 0 ]; then
     echoerr "Failed to build image. Please check docker build output"
