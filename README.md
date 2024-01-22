@@ -78,7 +78,7 @@ Both folders are mounted to the container at runtime. This means that changes ma
 
 # Advanced Features and GPU Acceleration
 
-The default configuration builds and starts the container in *opensource* mode and forwards port 8888 to the host system. This allows the JupyterLab GUI to be forwarded to the host and accessed [here](127.0.0.1:8888) (the password to access jupyterlab is *ros_ml_container*, but I suggest you change that in your local copy of the [entrypoint.sh](./entrypoint.sh) file). Jupyterlab is automatically installed and started in the set up virtual environment to provide a simple way to open multiple terminals within the Docker container.
+The default configuration downloads a pre-built version of the container in *opensorce* mode, starts it and forwards port 8888 to the host system. This allows the JupyterLab GUI to be forwarded to the host and accessed [here](127.0.0.1:8888) (the password to access jupyterlab is *ros_ml_container*, but I suggest you change that in your local copy of the [entrypoint.sh](./entrypoint.sh) file). Jupyterlab is automatically installed and started in the set up virtual environment to provide a simple way to open multiple terminals within the Docker container.
 
 ### These configurations can be done
 
