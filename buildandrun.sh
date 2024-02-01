@@ -94,6 +94,7 @@ elif [ "$GRAPHICS_PLATFORM" == "amd" ]; then
     DOCKER_ARGS+=("--device=/dev/dri")
     DOCKER_ARGS+=("--device=/dev/kfd")
     DOCKER_ARGS+=("--security-opt seccomp=unconfined --group-add video")
+    DOCKER_ARGS+=("--cap-add=SYS_PTRACE --ipc=host --shm-size 8G")
 
 elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
     # WSL2
