@@ -1,17 +1,20 @@
-# Remove other container sources to deal with space constraints in github actions
 # Default platform = opensource gpu acceleration
 ARG GRAPHICS_PLATFORM=standard
 # Default python version is 3.8
 ARG PYTHONVER=3.10
+# Base image for ci
+ARG BASEIMAGE=ubuntu:jammy
+# ROS Version
+ARG ROS_DISTRO=humble
+ARG IGNITION_VERSION=fortress
 
-## Generic container with MESA
-FROM ubuntu:jammy as build_standard
+# TODO: Correctly set env variables as required by different acceleration strategies
 
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########
 
 ## Build container from specified source
-FROM build_${GRAPHICS_PLATFORM}
+FROM ${BASEIMAGE}
 LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
 
 ENV DEBIAN_FRONTEND="noninteractive"
@@ -113,11 +116,13 @@ WORKDIR /
 # ------------------------
 
 # Set ROS and ignition versions and install them
-ENV ROS_DISTRO humble
-ENV IGNITION_VERSION fortress
+ARG ROS_DISTRO
+ARG IGNITION_VERSION
+ENV ROS_DISTRO ${ROS_DISTRO}
+ENV IGNITION_VERSION ${IGNITION_VERSION}
 
 # Fully install ros2 instead of bootstrapping it and install rqt for debugging and rosbridge for web-based visualisation
-RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-humble-rqt* ros-humble-rosbridge-server
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-$ROS_DISTRO-rqt* ros-$ROS_DISTRO-rosbridge-server
 
 # Install ignition gazebo
 #RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION

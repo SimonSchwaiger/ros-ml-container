@@ -1,0 +1,35 @@
+{"include":[
+
+    {
+        "TAG": "ros1_noetic",
+        "DOCKERFILE": "Dockerfile.ros1_noetic",
+        "BASEIMAGE" : "",
+        "ROS_DISTRO": "",
+        "PYTHONVER" : "3.8"
+    },
+
+    {
+        "TAG": "ros2_humble",
+        "DOCKERFILE": "Dockerfile.ros2",
+        "BASEIMAGE": "ubuntu:jammy",
+        "ROS_DISTRO": "humble",
+        "PYTHONVER" : "3.10"
+    },
+
+    {
+        "TAG": "ros2_humble_nvidia",
+        "DOCKERFILE": "Dockerfile.ros2",
+        "BASEIMAGE": "nvidia/cuda:11.8.0-runtime-ubuntu22.04",
+        "ROS_DISTRO": "humble",
+        "PYTHONVER" : "3.10"
+    },
+
+    {
+        "TAG": "ros2_humble_amd",
+        "DOCKERFILE": "Dockerfile.ros2",
+        "BASEIMAGE": "rocm/dev-ubuntu-22.04:latest",
+        "ROS_DISTRO": "humble",
+        "PYTHONVER" : "3.10"
+    }
+
+]}
