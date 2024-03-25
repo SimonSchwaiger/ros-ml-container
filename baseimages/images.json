@@ -1,7 +1,7 @@
 {"include": [
 
     {
-        "TAG": "ros1_noetic",
+        "TAG": "ros1_noetic_cpu",
         "DOCKERFILE": "Dockerfile.ros1_noetic",
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE" : "ubuntu:focal",
@@ -37,7 +37,16 @@
     },
 
     {
-        "TAG": "ros2_humble",
+        "TAG": "ros1_noetic_intel",
+        "DOCKERFILE": "Dockerfile.ros1_noetic",
+        "BASE_DOCKERFILE": "Dockerfile.standard",
+        "BASEIMAGE" : "intel/oneapi-aikit:devel-ubuntu20.04",
+        "ROS_DISTRO": "noetic",
+        "PYTHONVER" : "3.8"
+    },
+
+    {
+        "TAG": "ros2_humble_cpu",
         "DOCKERFILE": "Dockerfile.ros2",
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",
@@ -77,6 +86,15 @@
         "DOCKERFILE": "Dockerfile.ros2",
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "intel/oneapi-aikit:2023.1.0-devel-ubuntu22.04",
+        "ROS_DISTRO": "humble",
+        "PYTHONVER" : "3.10"
+    },
+
+    {
+        "TAG": "ros2_humble_wsl",
+        "DOCKERFILE": "Dockerfile.ros2",
+        "BASE_DOCKERFILE": "Dockerfile.standard",
+        "BASEIMAGE": "ubuntu:jammy",
         "ROS_DISTRO": "humble",
         "PYTHONVER" : "3.10"
     }
