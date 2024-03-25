@@ -10,6 +10,15 @@
     },
 
     {
+        "TAG": "ros1_noetic_opensource",
+        "DOCKERFILE": "Dockerfile.ros1_noetic",
+        "BASE_DOCKERFILE": "Dockerfile.standard",
+        "BASEIMAGE" : "ubuntu:focal",
+        "ROS_DISTRO": "noetic",
+        "PYTHONVER" : "3.8"
+    },
+
+    {
         "TAG": "ros1_noetic_nvidia",
         "DOCKERFILE": "Dockerfile.ros1_noetic",
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
@@ -37,7 +46,7 @@
     },
 
     {
-        "TAG": "ros2_humble_standard",
+        "TAG": "ros2_humble_opensource",
         "DOCKERFILE": "Dockerfile.ros2",
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",

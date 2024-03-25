@@ -2,8 +2,6 @@
 ARG GRAPHICS_PLATFORM=standard
 # Default python version is 3.8
 ARG PYTHONVER=3.10
-# Base image for ci
-ARG BASEIMAGE=ubuntu:jammy
 # ROS Version
 ARG ROS_DISTRO=humble
 ARG IGNITION_VERSION=fortress
@@ -13,7 +11,7 @@ ARG IGNITION_VERSION=fortress
 
 ## Build container from specified source
 FROM ros_ml_container:baseimage
-#LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
+LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
