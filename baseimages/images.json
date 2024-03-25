@@ -6,7 +6,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE" : "ubuntu:focal",
         "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
+        "PYTHONVER" : "3.8",
+        "ROS2_WS" : "/catkin_ws"
     },
 
     {
@@ -15,7 +16,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE" : "ubuntu:focal",
         "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
+        "PYTHONVER" : "3.8",
+        "ROS2_WS" : "/catkin_ws"
     },
 
     {
@@ -24,7 +26,8 @@
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
         "BASEIMAGE" : "nvidia/cuda:11.8.0-runtime-ubuntu20.04",
         "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
+        "PYTHONVER" : "3.8",
+        "ROS2_WS" : "/catkin_ws"
     },
 
     {
@@ -33,7 +36,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE" : "rocm/dev-ubuntu-20.04:latest",
         "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
+        "PYTHONVER" : "3.8",
+        "ROS2_WS" : "/catkin_ws"
     },
 
     {
@@ -42,7 +46,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE" : "intel/oneapi-aikit:devel-ubuntu20.04",
         "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
+        "PYTHONVER" : "3.8",
+        "ROS2_WS" : "/catkin_ws"
     },
 
     {
@@ -51,7 +56,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     },
 
     {
@@ -60,7 +66,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     },
 
     {
@@ -69,7 +76,8 @@
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
         "BASEIMAGE": "nvidia/cuda:11.8.0-runtime-ubuntu22.04",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     },
 
     {
@@ -78,7 +86,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "rocm/dev-ubuntu-22.04:latest",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     },
 
     {
@@ -87,7 +96,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "intel/oneapi-aikit:2023.1.0-devel-ubuntu22.04",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     },
 
     {
@@ -96,7 +106,8 @@
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",
         "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
     }
 
 ]}

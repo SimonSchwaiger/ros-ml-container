@@ -86,10 +86,12 @@ check_docker_build_success
 # https://unix.stackexchange.com/questions/330366/how-can-i-run-a-graphical-application-in-a-container-under-wayland
 xhost +local:docker
 
+ROS2_WS=$(echo $IMAGE_CONFIG| jq -r '.ROS2_WS')
+
 # Set up docker run args for gpu forwarding
 DOCKER_ARGS+=("-e DISPLAY=$DISPLAY")
 DOCKER_ARGS+=("-v /tmp/.X11-unix:/tmp/.X11-unix")
-DOCKER_ARGS+=("-v $PWD/src:/opt/ros2_ws/src")
+DOCKER_ARGS+=("-v $PWD/src:$ROS2_WS/src")
 DOCKER_ARGS+=("-v $PWD/app:/app")
 DOCKER_ARGS+=("-v $PWD/lab:/root/.jupyter/lab")
 

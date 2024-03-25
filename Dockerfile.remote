@@ -17,6 +17,7 @@ COPY ./src/ /opt/$ROS2_WS/src/
 RUN apt-get update && rosdep update && rosdep install --from-paths /opt/$ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
 
 # Compile workspace
+# TODO: Figure out how to switch build systems based on ROS distro here
 RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
     && cd /opt/$ROS2_WS \
     && colcon build --symlink-install"

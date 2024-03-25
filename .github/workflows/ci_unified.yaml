@@ -52,5 +52,5 @@ jobs:
         mkdir src
         echo "jupyterlab" > requirements.txt
         docker build . --file baseimages/${{ matrix.BASE_DOCKERFILE }} --tag ros_ml_container:baseimage --build-arg BASEIMAGE=${{ matrix.BASEIMAGE }}
-        docker build . --file ${{ matrix.DOCKERFILE }} --tag $IMAGE_TAG --build-arg ROS_DISTRO=${{ matrix.ROS_DISTRO }} --build-arg PYTHONVER=${{ matrix.PYTHONVER }}
+        docker build . --file ${{ matrix.DOCKERFILE }} --tag $IMAGE_TAG --build-arg ROS_DISTRO=${{ matrix.ROS_DISTRO }} --build-arg PYTHONVER=${{ matrix.PYTHONVER }} --build-arg ROS2_WS=${{ matrix.ROS2_WS }}
         docker push $IMAGE_TAG

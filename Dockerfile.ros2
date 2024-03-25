@@ -5,6 +5,8 @@ ARG PYTHONVER=3.10
 # ROS Version
 ARG ROS_DISTRO=humble
 ARG IGNITION_VERSION=fortress
+# Workspace
+ARG ROS2_WS=/opt/ros2_ws
 
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########
@@ -18,6 +20,9 @@ ENV DEBIAN_FRONTEND="noninteractive"
 # Install mesa for GUI
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     libgl1-mesa-glx libgl1-mesa-dri
+
+ARG ROS2_WS
+ENV ROS2_WS $ROS2_WS
 
 ## Recreate ROS humble devel image
 # ------------------------
@@ -93,7 +98,6 @@ RUN colcon mixin add default \
     colcon metadata update
 
 # clone source
-ENV ROS2_WS /opt/ros2_ws
 RUN mkdir -p $ROS2_WS/src
 WORKDIR $ROS2_WS
 
@@ -180,25 +184,25 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install -r requirements.txt"
 
 # Copy ROS packages for compilation in container
-COPY ./src /opt/$ROS2_WS/src
+COPY ./src $ROS2_WS/src
 
 # Install ros dependencies
-RUN apt-get update && rosdep update && rosdep install --from-paths /opt/$ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
+RUN apt-get update && rosdep update && rosdep install --from-paths $ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
 
 # Compile workspace
 RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
-    && cd /opt/$ROS2_WS \
+    && cd $ROS2_WS \
     && colcon build --symlink-install"
 
 # Remove src folder used for compilation, since the real src folder will be mounted at runtime
-RUN rm -rf /opt/$ROS2_WS/src
+RUN rm -rf $ROS2_WS/src
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/*
 
 # Add ROS and venv sourcing to bashrc for interactive debugging
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
-RUN echo ". /opt/ros2_ws/install/local_setup.bash" >> ~/.bashrc
+RUN echo ". $ROS2_WS/install/local_setup.bash" >> ~/.bashrc
 RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
 
 # Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)

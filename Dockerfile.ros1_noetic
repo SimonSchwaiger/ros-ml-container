@@ -6,6 +6,7 @@ ARG PYTHONVER=3.10
 ARG BASEIMAGE=ubuntu:focal
 # ROS Version
 ARG ROS_DISTRO=noetic
+ARG ROS2_WS=/catkin_ws
 
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########
@@ -124,6 +125,11 @@ RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
 
 # Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
 ENV SHELL=/bin/bash
+
+# Set path as env variable, similarly to ROS 2 version of container
+# TODO: make workspace customisable as an argument throughout the dockerfile
+ARG ROS2_WS
+ENV ROS2_WS ROS2_WS
 
 # Add entrypoint
 ADD entrypoint.sh /entrypoint.sh
