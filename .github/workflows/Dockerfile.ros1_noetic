@@ -1,17 +1,17 @@
-# Remove other container sources to deal with space constraints in github actions
 # Default platform = opensource gpu acceleration
 ARG GRAPHICS_PLATFORM=standard
 # Default python version is 3.8
-ARG PYTHONVER=3.8
-
-## Generic container with MESA
-FROM ubuntu:focal as build_standard
+ARG PYTHONVER=3.10
+# Base image for ci
+ARG BASEIMAGE=ubuntu:focal
+# ROS Version
+ARG ROS_DISTRO=noetic
 
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########
 
 ## Build container from specified source
-FROM build_${GRAPHICS_PLATFORM}
+FROM ros_ml_container:baseimage
 
 ENV DEBIAN_FRONTEND="noninteractive"
 

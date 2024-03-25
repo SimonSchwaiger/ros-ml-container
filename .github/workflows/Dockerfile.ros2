@@ -8,14 +8,12 @@ ARG BASEIMAGE=ubuntu:jammy
 ARG ROS_DISTRO=humble
 ARG IGNITION_VERSION=fortress
 
-# TODO: Correctly set env variables as required by different acceleration strategies
-
 #############################################################
 ##########          REAL BUILD STARTS HERE         ##########
 
 ## Build container from specified source
-FROM ${BASEIMAGE}
-LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
+FROM ros_ml_container:baseimage
+#LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
