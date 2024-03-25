@@ -11,7 +11,7 @@ RUN /bin/bash -c "source ~/myenv/bin/activate \
     && pip3 install -r requirements.txt"
 
 # Copy ROS packages for compilation in container
-COPY ./src/ /opt/$ROS2_WS/src/
+COPY ./src/ $ROS2_WS/src/
 
 # Install ros dependencies
 RUN apt-get update && rosdep update && rosdep install --from-paths /opt/$ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
@@ -23,7 +23,7 @@ RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
     && colcon build --symlink-install"
 
 # Remove src folder used for compilation, since the real src folder will be mounted at runtime
-RUN rm -rf /opt/$ROS2_WS/src
+RUN rm -rf $ROS2_WS/src
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/*
