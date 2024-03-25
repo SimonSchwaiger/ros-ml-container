@@ -6,6 +6,7 @@ GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-opensource}"
 PYTHONVER="${PYTHONVER:-3.10}"
 DOCKER_RUN_ARGS="${DOCKER_RUN_ARGS:-"-p 8888:8888"}"
 BUILD_LOCAL="${BUILD_LOCAL:-false}"
+ROS_DISTRO="${ROS_DISTRO:-"humble"}" # Cheeky test for unified ros 1 and ros 2 script
 
 # Check if container is already running and attach if it is
 if [ "$(docker ps -aq --filter status=running --filter name=ros_ml_container)" ]; then
@@ -43,7 +44,7 @@ if [ ! -f  "requirements.txt" ]; then
 fi
 
 # Check if container should be built locally (if GRAPHICS_PLATFORM has been changed or local build explicitly requested)
-if [ "$BUILD_LOCAL" == "false" ] && [ "$GRAPHICS_PLATFORM" == "opensource" ]; then
+if [ "$BUILD_LOCAL" == "false" ] && ([ "$GRAPHICS_PLATFORM" == "opensource" ] || [ "$GRAPHICS_PLATFORM" == "nvidia" ] || [ "$GRAPHICS_PLATFORM" == "amd" ]); then
     # Pull remote container and build
     docker build -t ros_ml_container \
     --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
@@ -51,11 +52,23 @@ if [ "$BUILD_LOCAL" == "false" ] && [ "$GRAPHICS_PLATFORM" == "opensource" ]; th
     -f Dockerfile.remote \
     .
 else
-    # Local container build
+    ## Prepare baseimage (to prevent redundant downloads)
+    # Lookup correct configuration
+    IMAGE_CONFIG=$(python baseimages/get_base_dockerfile.py baseimages/images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
+    # Pull correct image based on base image and corresponding dockerfile
+    docker build -t ros_ml_container:baseimage \
+    --build-arg BASEIMAGE=$(echo $IMAGE_CONFIG| jq -r '.BASEIMAGE') \
+    -f baseimages/$(echo $IMAGE_CONFIG| jq -r '.BASE_DOCKERFILE') \
+    .
+    if [ $? -ne 0 ]; then
+        echoerr "Failed to build image. Please check docker build output"
+        exit 1
+    fi
+    ## Local container build
     docker build -t ros_ml_container \
     --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
     --build-arg PYTHONVER=$PYTHONVER \
-    -f Dockerfile.local \
+    -f .github/workflows/Dockerfile.ros2 \
     .
 fi
 
