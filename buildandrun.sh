@@ -44,39 +44,42 @@ if [ ! -f  "requirements.txt" ]; then
     echo "jupyterlab # put your required Python3 packages here. They will be installed using Pip!" > requirements.txt
 fi
 
+# Lookup correct configuration
+IMAGE_CONFIG=$(python baseimages/get_base_dockerfile.py baseimages/images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
+
+# Aborts script if build is not successful
+check_docker_build_success() {
+    if [ $? -ne 0 ]; then
+        echoerr "Failed to build image. Please check docker build output"
+        exit 1
+    fi
+};
+
 # Check if container should be built locally (if GRAPHICS_PLATFORM has been changed or local build explicitly requested)
 if [ "$BUILD_LOCAL" == "false" ] && ([ "$GRAPHICS_PLATFORM" == "opensource" ] || [ "$GRAPHICS_PLATFORM" == "nvidia" ] || [ "$GRAPHICS_PLATFORM" == "amd" ]); then
     # Pull remote container and build
     docker build -t ros_ml_container \
     --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
-    --build-arg PYTHONVER=$PYTHONVER \
+    --build-arg TAG=$(echo $IMAGE_CONFIG| jq -r '.TAG') \
     -f Dockerfile.remote \
     .
 else
     ## Prepare baseimage (to prevent redundant downloads)
-    # Lookup correct configuration
-    IMAGE_CONFIG=$(python baseimages/get_base_dockerfile.py baseimages/images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
     # Pull correct image based on base image and corresponding dockerfile
     docker build -t ros_ml_container:baseimage \
     --build-arg BASEIMAGE=$(echo $IMAGE_CONFIG| jq -r '.BASEIMAGE') \
     -f baseimages/$(echo $IMAGE_CONFIG| jq -r '.BASE_DOCKERFILE') \
     .
-    if [ $? -ne 0 ]; then
-        echoerr "Failed to build image. Please check docker build output"
-        exit 1
-    fi
+    check_docker_build_success
     ## Local container build
     docker build -t ros_ml_container \
     --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
     --build-arg PYTHONVER=$PYTHONVER \
-    -f .github/workflows/Dockerfile.ros2 \
+    -f $(echo $IMAGE_CONFIG| jq -r '.DOCKERFILE') \
     .
 fi
 
-if [ $? -ne 0 ]; then
-    echoerr "Failed to build image. Please check docker build output"
-    exit 1
-fi
+check_docker_build_success
 
 # Set xhost permissions for docker
 # TODO better solution
@@ -108,6 +111,7 @@ elif [ "$GRAPHICS_PLATFORM" == "amd" ]; then
     DOCKER_ARGS+=("--device=/dev/dri")
     DOCKER_ARGS+=("--device=/dev/kfd")
     DOCKER_ARGS+=("--security-opt seccomp=unconfined --group-add video")
+    DOCKER_ARGS+=("--cap-add=SYS_PTRACE --ipc=host --shm-size 8G")
 
 elif [ "$GRAPHICS_PLATFORM" == "wsl2" ]; then
     # WSL2
