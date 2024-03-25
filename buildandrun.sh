@@ -36,6 +36,7 @@ fi
 # Check if src and lab folders exist, if not they will be created
 # The lab folder allows the jupyterlab config to persist between sessions
 mkdir -p src
+mkdir -p app
 mkdir -p lab/workspaces
 
 # Check if requirements file exists and create it with example packages if it isn't

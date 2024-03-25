@@ -1,5 +1,5 @@
 # Default platform = opensource gpu acceleration
-ARG GRAPHICS_PLATFORM=standard
+ARG GRAPHICS_PLATFORM=opensource
 # ROS Version
 ARG ROS_DISTRO=humble
 

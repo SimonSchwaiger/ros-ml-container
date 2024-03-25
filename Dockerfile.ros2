@@ -1,5 +1,5 @@
 # Default platform = opensource gpu acceleration
-ARG GRAPHICS_PLATFORM=standard
+ARG GRAPHICS_PLATFORM=opensource
 # Default python version is 3.8
 ARG PYTHONVER=3.10
 # ROS Version
