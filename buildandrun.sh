@@ -55,8 +55,11 @@ check_docker_build_success() {
     fi
 };
 
+# Check ci images and determine, whether or not the specified config exists in the cloud
+REGISTRY_AVAILABLE=$(python baseimages/check_tag_existance.py .github/workflows/ci_images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
+
 # Check if container should be built locally (if GRAPHICS_PLATFORM has been changed or local build explicitly requested)
-if [ "$BUILD_LOCAL" == "false" ] && ([ "$GRAPHICS_PLATFORM" == "opensource" ] || [ "$GRAPHICS_PLATFORM" == "nvidia" ] || [ "$GRAPHICS_PLATFORM" == "amd" ]); then
+if [ "$BUILD_LOCAL" == "false" ] && [ "$REGISTRY_AVAILABLE" == "true" ]; then
     # Pull remote container and build
     docker build -t ros_ml_container \
     --build-arg TAG=$(echo $IMAGE_CONFIG| jq -r '.TAG') \
