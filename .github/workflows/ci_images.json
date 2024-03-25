@@ -1,15 +1,6 @@
 {"include": [
 
     {
-        "TAG": "ros1_noetic",
-        "DOCKERFILE": "Dockerfile.ros1_noetic",
-        "BASE_DOCKERFILE": "Dockerfile.standard",
-        "BASEIMAGE" : "ubuntu:focal",
-        "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8"
-    },
-
-    {
         "TAG": "ros1_noetic_opensource",
         "DOCKERFILE": "Dockerfile.ros1_noetic",
         "BASE_DOCKERFILE": "Dockerfile.standard",
@@ -34,15 +25,6 @@
         "BASEIMAGE" : "rocm/dev-ubuntu-20.04:latest",
         "ROS_DISTRO": "noetic",
         "PYTHONVER" : "3.8"
-    },
-
-    {
-        "TAG": "ros2_humble",
-        "DOCKERFILE": "Dockerfile.ros2",
-        "BASE_DOCKERFILE": "Dockerfile.standard",
-        "BASEIMAGE": "ubuntu:jammy",
-        "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10"
     },
 
     {
