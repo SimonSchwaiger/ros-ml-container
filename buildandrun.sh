@@ -10,7 +10,7 @@ ROS_DISTRO="${ROS_DISTRO:-"humble"}" # Cheeky test for unified ros 1 and ros 2 s
 
 # Check if container is already running and attach if it is
 if [ "$(docker ps -aq --filter status=running --filter name=ros_ml_container)" ]; then
-    print_info "Detected running container instance. Attaching to the running container"
+    echo "Detected running container instance. Attaching to the running container"
     docker exec -it ros_ml_container bash $@
     exit 0
 fi

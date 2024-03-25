@@ -202,7 +202,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 # Add ROS and venv sourcing to bashrc for interactive debugging
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
-RUN echo ". $ROS2_WS/install/local_setup.bash" >> ~/.bashrc
+RUN echo "source $ROS2_WS/install/local_setup.bash" >> ~/.bashrc
 RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
 
 # Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
