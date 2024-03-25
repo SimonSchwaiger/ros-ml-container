@@ -1,10 +1,8 @@
-# Default platform = opensource gpu acceleration
-ARG GRAPHICS_PLATFORM=opensource
 # ROS Version
-ARG ROS_DISTRO=humble
+ARG TAG=ros2_humble_opensource
 
 # Pull ros-ml-container from container registry
-FROM ghcr.io/simonschwaiger/ros-ml-container:ros2_${ROS_DISTRO}_${GRAPHICS_PLATFORM}
+FROM ghcr.io/simonschwaiger/ros-ml-container:${TAG}
 
 # Install additional requirements from local file
 RUN rm requirements.txt
