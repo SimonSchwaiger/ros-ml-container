@@ -20,8 +20,8 @@ jobs:
       - name: "Parse images.json"
         id: set-matrix
         run: |
-          tr --delete '    ' < ci_images.json > ci_images_nospace.json
-          tr --delete '\n' < ci_images_nospace.json > ci_images_oneline.json
+          tr --delete '    ' < .github/workflows/ci_images.json > .github/workflows/ci_images_nospace.json
+          tr --delete '\n' < .github/workflows/ci_images_nospace.json > .github/workflows/ci_images_oneline.json
           echo "matrix=$(cat .github/workflows/ci_images_oneline.json)" >> $GITHUB_OUTPUT
 
 
