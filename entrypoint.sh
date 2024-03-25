@@ -1,8 +1,9 @@
 #!/bin/bash
 # Source ros and python3 components
 source ~/myenv/bin/activate
-source /opt/ros/humble/setup.bash
-source /opt/ros2_ws/install/local_setup.bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+#TODO: switchable ws source
+#source /opt/ros2_ws/install/local_setup.bash
 #export TURTLEBOT3_MODEL=burger
 
 # Start jupyterlab

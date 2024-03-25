@@ -59,8 +59,8 @@ check_docker_build_success() {
 if [ "$BUILD_LOCAL" == "false" ] && ([ "$GRAPHICS_PLATFORM" == "opensource" ] || [ "$GRAPHICS_PLATFORM" == "nvidia" ] || [ "$GRAPHICS_PLATFORM" == "amd" ]); then
     # Pull remote container and build
     docker build -t ros_ml_container \
-    --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
     --build-arg TAG=$(echo $IMAGE_CONFIG| jq -r '.TAG') \
+    --build-arg ROS_DISTRO=$(echo $IMAGE_CONFIG| jq -r '.ROS_DISTRO') \
     -f Dockerfile.remote \
     .
 else
