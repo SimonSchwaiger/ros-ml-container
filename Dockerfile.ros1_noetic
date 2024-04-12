@@ -129,7 +129,7 @@ ENV SHELL=/bin/bash
 # Set path as env variable, similarly to ROS 2 version of container
 # TODO: make workspace customisable as an argument throughout the dockerfile
 ARG ROS2_WS
-ENV ROS2_WS ROS2_WS
+ENV ROS2_WS $ROS2_WS
 
 # Add entrypoint
 ADD entrypoint.sh /entrypoint.sh
