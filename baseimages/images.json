@@ -24,7 +24,7 @@
         "TAG": "ros1_noetic_nvidia",
         "DOCKERFILE": "Dockerfile.ros1_noetic",
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
-        "BASEIMAGE" : "nvidia/cuda:11.8.0-runtime-ubuntu20.04",
+        "BASEIMAGE" : "nvidia/cuda:11.8.0-devel-ubuntu20.04",
         "ROS_DISTRO": "noetic",
         "PYTHONVER" : "3.8",
         "ROS2_WS" : "/catkin_ws"
@@ -74,7 +74,7 @@
         "TAG": "ros2_humble_nvidia",
         "DOCKERFILE": "Dockerfile.ros2",
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
-        "BASEIMAGE": "nvidia/cuda:11.8.0-runtime-ubuntu22.04",
+        "BASEIMAGE": "nvidia/cuda:11.8.0-devel-ubuntu22.04",
         "ROS_DISTRO": "humble",
         "PYTHONVER" : "3.10",
         "ROS2_WS" : "/opt/ros2_ws"
