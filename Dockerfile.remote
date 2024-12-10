@@ -3,7 +3,7 @@ ARG TAG=ros2_humble_opensource
 ARG ROS_DISTRO=humble
 
 # Pull ros-ml-container from container registry
-FROM ghcr.io/simonschwaiger/ros-ml-container:${TAG}
+FROM ros_ml_container:${TAG}
 
 # Install additional requirements from local file
 RUN rm requirements.txt
