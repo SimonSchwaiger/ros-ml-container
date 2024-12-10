@@ -1,0 +1,190 @@
+# Default platform = opensource gpu acceleration
+ARG GRAPHICS_PLATFORM=opensource
+# Default python version is 3.8
+ARG PYTHONVER=3.12
+# ROS Version
+ARG ROS_DISTRO=jazzy
+# Workspace
+ARG ROS2_WS=/opt/ros2_ws
+
+#############################################################
+##########          REAL BUILD STARTS HERE         ##########
+
+## Build container from specified source
+FROM ros_ml_container:baseimage
+LABEL org.opencontainers.image.source="https://github.com/SimonSchwaiger/ros-ml-container"
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+# Install mesa for GUI
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    libgl1 libglx-mesa0
+
+# libgl1-mesa-glx libgl1-mesa-dri
+
+ARG ROS2_WS
+ENV ROS2_WS $ROS2_WS
+
+## Recreate ROS humble devel image
+# ------------------------
+# https://github.com/osrf/docker_images/blob/master/ros2/source/devel/Dockerfile
+# setup timezone
+RUN echo 'Etc/UTC' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    apt-get update && \
+    apt-get install -q -y --no-install-recommends tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+# install packages
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    bash-completion \
+    dirmngr \
+    gnupg2 \
+    python3-argcomplete \
+    python3-flake8 \
+    python3-flake8-blind-except \
+    python3-flake8-builtins \
+    python3-flake8-class-newline \
+    python3-flake8-comprehensions \
+    python3-flake8-deprecated \
+    python3-flake8-docstrings \
+    python3-flake8-import-order \
+    python3-flake8-quotes \
+    python3-pip \
+    python3-pytest-cov \
+    python3-pytest-mock \
+    python3-pytest-repeat \
+    python3-pytest-rerunfailures \
+    python3-pytest-runner \
+    python3-pytest-timeout \
+    && rm -rf /var/lib/apt/lists/*
+
+# setup keys
+RUN set -eux; \
+       key='C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654'; \
+       export GNUPGHOME="$(mktemp -d)"; \
+       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
+       mkdir -p /usr/share/keyrings; \
+       gpg --batch --export "$key" > /usr/share/keyrings/ros2-latest-archive-keyring.gpg; \
+       gpgconf --kill all; \
+       rm -rf "$GNUPGHOME"
+
+# setup sources.list
+RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2/ubuntu noble main" > /etc/apt/sources.list.d/ros2-latest.list
+
+# setup environment
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+# install bootstrap tools
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    python3-colcon-common-extensions \
+    python3-colcon-mixin \
+    python3-rosdep \
+    python3-setuptools \
+    python3-vcstool \
+    && rm -rf /var/lib/apt/lists/*
+
+# This is a workaround for pytest not found causing builds to fail
+# Following RUN statements tests for regression of https://github.com/ros2/ros2/issues/722
+RUN pip3 freeze | grep pytest \
+    && python3 -m pytest --version
+
+# bootstrap rosdep
+RUN rosdep init \
+    && rosdep update
+
+# setup colcon mixin and metadata
+RUN colcon mixin add default \
+      https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
+    colcon mixin update && \
+    colcon metadata add default \
+      https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
+    colcon metadata update
+
+# clone source
+ENV ROS2_WS /opt/ros2_ws
+RUN mkdir -p $ROS2_WS/src
+WORKDIR $ROS2_WS
+
+# build source
+RUN colcon \
+    build \
+    --cmake-args \
+      -DSECURITY=ON --no-warn-unused-cli \
+    --symlink-install
+
+# setup bashrc
+RUN cp /etc/skel/.bashrc ~/
+
+WORKDIR /
+## Official ROS image recreated
+# ------------------------
+
+# Set ROS and ignition versions and install them
+ARG ROS_DISTRO
+ENV ROS_DISTRO ${ROS_DISTRO}
+
+# Install venv and create env
+RUN apt-get update && apt-get install -q -y --no-install-recommends python3-pip python3-venv
+RUN python3 -m venv ~/myenv
+
+# Upgrade to latest pip
+RUN /bin/bash -c "source ~/myenv/bin/activate \
+    && pip3 install --upgrade pip"
+
+# Install ros python prerequisites
+# Pytest is explicitly installed to handle the intel edgecase
+# Netifaces, pymongo and Pillow are installed for rosbridge
+RUN /bin/bash -c "source ~/myenv/bin/activate \
+    && pip3 install launchpadlib \
+    pyaml \
+    && pip3 install --upgrade setuptools"
+
+# Fully install ros2 instead of bootstrapping it and install rqt for debugging and rosbridge for web-based visualisation
+#RUN apt-get update && apt-get install -y ros-dev-tools ros-$ROS_DISTRO-rosbridge-server
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-$ROS_DISTRO-rqt* ros-$ROS_DISTRO-rosbridge-server
+
+# Install ignition gazebo
+#RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
+
+# Update os and ros packages due to fix buggy opengl
+RUN apt-get update && apt-get upgrade -y
+
+# Install required python packages
+ADD ./requirements.txt .
+
+RUN /bin/bash -c "source ~/myenv/bin/activate \
+    && pip3 install -r requirements.txt"
+
+# Copy ROS packages for compilation in container
+COPY ./src $ROS2_WS/src
+
+# Install ros dependencies
+RUN apt-get update && rosdep update && rosdep install --from-paths $ROS2_WS/src -i -y --rosdistro $ROS_DISTRO
+
+# Compile workspace
+RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
+    && cd $ROS2_WS \
+    && colcon build --symlink-install"
+
+# Remove src folder used for compilation, since the real src folder will be mounted at runtime
+RUN rm -rf $ROS2_WS/src
+
+# Cleanup
+RUN rm -rf /var/lib/apt/lists/*
+
+# Add ROS and venv sourcing to bashrc for interactive debugging
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo "source $ROS2_WS/install/local_setup.bash" >> ~/.bashrc
+RUN echo "source ~/myenv/bin/activate" >> ~/.bashrc
+
+# Set shell env variable for jupyterlab (this fixes autocompletion in web-based shell)
+ENV SHELL=/bin/bash
+
+# Add entrypoint
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
