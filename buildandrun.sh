@@ -1,15 +1,15 @@
 #!/bin/bash
-# Set environment variable for graphics acceleration in the container
-# Possible values are cpu (no acceleration), opensource (intel and amd open-source), amd (rocm), nvidia (container-toolkit)
-# If GRAPHICS_PLATFORM is null or not set, use opensource (cpu is mainly for debugging)
+
+# Default configuration. Can be overwritten with env variables
 GRAPHICS_PLATFORM="${GRAPHICS_PLATFORM:-opensource}"
-PYTHONVER="${PYTHONVER:-3.10}"
 DOCKER_RUN_ARGS="${DOCKER_RUN_ARGS:-"-p 8888:8888"}"
 BUILD_LOCAL="${BUILD_LOCAL:-false}"
-ROS_DISTRO="${ROS_DISTRO:-"humble"}" # Cheeky test for unified ros 1 and ros 2 script
+SKIP_COMPILE="${SKIP_COMPILE:-false}" # 
+ROS_DISTRO="${ROS_DISTRO:-"humble"}"
+CONTAINER_NAME="${CONTAINER_NAME:-ros_ml_container}"
 
 # Check if container is already running and attach if it is
-if [ "$(docker ps -aq --filter status=running --filter name=ros_ml_container)" ]; then
+if [ "$(docker ps -aq --filter status=running --filter name=$CONTAINER_NAME)" ]; then
     echo "Detected running container instance. Attaching to the running container"
     docker exec -it ros_ml_container bash $@
     exit 0
@@ -45,7 +45,7 @@ if [ ! -f  "requirements.txt" ]; then
 fi
 
 # Lookup correct configuration
-IMAGE_CONFIG=$(python baseimages/get_base_dockerfile.py baseimages/images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
+IMAGE_CONFIG=$(python3 baseimages/get_base_dockerfile.py baseimages/images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
 
 # Aborts script if build is not successful
 check_docker_build_success() {
@@ -56,16 +56,13 @@ check_docker_build_success() {
 };
 
 # Check ci images and determine, whether or not the specified config exists in the cloud
-REGISTRY_AVAILABLE=$(python baseimages/check_tag_existance.py .github/workflows/ci_images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
+REGISTRY_AVAILABLE=$(python3 baseimages/check_tag_existance.py .github/workflows/ci_images.json $ROS_DISTRO $GRAPHICS_PLATFORM)
 
 # Check if container should be built locally (if GRAPHICS_PLATFORM has been changed or local build explicitly requested)
 if [ "$BUILD_LOCAL" == "false" ] && [ "$REGISTRY_AVAILABLE" == "true" ]; then
-    # Pull remote container and build
-    docker build -t ros_ml_container \
-    --build-arg TAG=$(echo $IMAGE_CONFIG| jq -r '.TAG') \
-    --build-arg ROS_DISTRO=$(echo $IMAGE_CONFIG| jq -r '.ROS_DISTRO') \
-    -f Dockerfile.remote \
-    .
+    ## Pull remote container
+    docker pull ghcr.io/simonschwaiger/ros-ml-container:$(echo $IMAGE_CONFIG| jq -r '.TAG')
+    docker tag ghcr.io/simonschwaiger/ros-ml-container:$(echo $IMAGE_CONFIG| jq -r '.TAG') ros_ml_container:$(echo $IMAGE_CONFIG| jq -r '.TAG')
 else
     ## Prepare baseimage (to prevent redundant downloads)
     # Pull correct image based on base image and corresponding dockerfile
@@ -74,15 +71,27 @@ else
     -f baseimages/$(echo $IMAGE_CONFIG| jq -r '.BASE_DOCKERFILE') \
     .
     check_docker_build_success
-    ## Local container build
-    docker build -t ros_ml_container \
+    ## Local container build -> Tag as specified in json
+    docker build -t ros_ml_container:$(echo $IMAGE_CONFIG| jq -r '.TAG') \
     --build-arg GRAPHICS_PLATFORM=$GRAPHICS_PLATFORM \
-    --build-arg PYTHONVER=$PYTHONVER \
-    -f $(echo $IMAGE_CONFIG| jq -r '.DOCKERFILE') \
+    --build-arg PYTHONVER=$(echo $IMAGE_CONFIG| jq -r '.PYTHONVER') \
+    --build-arg ROS_DISTRO=$(echo $IMAGE_CONFIG| jq -r '.ROS_DISTRO') \
+    -f distroimages/$(echo $IMAGE_CONFIG| jq -r '.DOCKERFILE') \
     .
+    check_docker_build_success
 fi
 
-check_docker_build_success
+if [ "$SKIP_COMPILE" == "false" ]; then
+    # Build catkin packages on top of remote or local container
+    docker build -t ros_ml_container \
+    --build-arg TAG=$(echo $IMAGE_CONFIG| jq -r '.TAG') \
+    --build-arg ROS_DISTRO=$(echo $IMAGE_CONFIG| jq -r '.ROS_DISTRO') \
+    -f Dockerfile.remote \
+    .
+    check_docker_build_success
+else
+    docker tag ros_ml_container:$(echo $IMAGE_CONFIG| jq -r '.TAG') ros_ml_container:latest
+fi
 
 # Set xhost permissions for docker
 # TODO better solution
@@ -144,9 +153,8 @@ fi
 
 # Start container
 echo Using graphics platform $GRAPHICS_PLATFORM
-echo Using python version $PYTHONVER
+echo Using python version $(echo $IMAGE_CONFIG| jq -r '.PYTHONVER')
 
-docker run -it --rm --name ros_ml_container \
+docker run -it --rm --name $CONTAINER_NAME \
             $DOCKER_RUN_ARGS ${DOCKER_ARGS[@]} \
             ros_ml_container:latest /bin/bash -c "chmod +x /app/app.sh && (cd app ; ./app.sh)"
-
