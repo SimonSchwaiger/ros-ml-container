@@ -21,18 +21,8 @@
     },
 
     {
-        "TAG": "ros1_noetic_amd",
-        "DOCKERFILE": "Dockerfile.ros1_noetic",
-        "BASE_DOCKERFILE": "Dockerfile.standard",
-        "BASEIMAGE" : "rocm/dev-ubuntu-20.04:latest",
-        "ROS_DISTRO": "noetic",
-        "PYTHONVER" : "3.8",
-        "ROS2_WS" : "/catkin_ws"
-    },
-
-    {
         "TAG": "ros2_humble_opensource",
-        "DOCKERFILE": "Dockerfile.ros2",
+        "DOCKERFILE": "Dockerfile.humble",
         "BASE_DOCKERFILE": "Dockerfile.standard",
         "BASEIMAGE": "ubuntu:jammy",
         "ROS_DISTRO": "humble",
@@ -42,7 +32,7 @@
 
     {
         "TAG": "ros2_humble_nvidia",
-        "DOCKERFILE": "Dockerfile.ros2",
+        "DOCKERFILE": "Dockerfile.humble",
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
         "BASEIMAGE": "nvidia/cuda:11.8.0-devel-ubuntu22.04",
         "ROS_DISTRO": "humble",
@@ -51,12 +41,22 @@
     },
 
     {
-        "TAG": "ros2_humble_amd",
-        "DOCKERFILE": "Dockerfile.ros2",
+        "TAG": "ros2_jazzy_opensource",
+        "DOCKERFILE": "Dockerfile.jazzy",
         "BASE_DOCKERFILE": "Dockerfile.standard",
-        "BASEIMAGE": "rocm/dev-ubuntu-22.04:latest",
-        "ROS_DISTRO": "humble",
-        "PYTHONVER" : "3.10",
+        "BASEIMAGE": "ubuntu:noble",
+        "ROS_DISTRO": "jazzy",
+        "PYTHONVER" : "3.12",
+        "ROS2_WS" : "/opt/ros2_ws"
+    },
+
+    {
+        "TAG": "ros2_jazzy_nvidia",
+        "DOCKERFILE": "Dockerfile.jazzy",
+        "BASE_DOCKERFILE": "Dockerfile.nvidia",
+        "BASEIMAGE": "nvidia/cuda:12.6.3-devel-ubuntu24.04",
+        "ROS_DISTRO": "jazzy",
+        "PYTHONVER" : "3.12",
         "ROS2_WS" : "/opt/ros2_ws"
     }
 
