@@ -22,17 +22,24 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     libgl1-mesa-glx libgl1-mesa-dri
 
 ARG ROS2_WS
-ENV ROS2_WS $ROS2_WS
+ENV ROS2_WS=$ROS2_WS
 
 ## Recreate ROS humble devel image
 # ------------------------
-# https://github.com/osrf/docker_images/blob/master/ros2/source/devel/Dockerfile
-# setup timezone
-RUN echo 'Etc/UTC' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get update && \
-    apt-get install -q -y --no-install-recommends tzdata && \
-    rm -rf /var/lib/apt/lists/*
+
+RUN apt update && apt install locales \
+    && locale-gen en_US en_US.UTF-8 \
+    && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
+
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    software-properties-common curl \
+    && add-apt-repository universe
+
+RUN export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') \
+    && curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
+RUN apt-get install /tmp/ros2-apt-source.deb
 
 # install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
@@ -53,16 +60,6 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     python3-pytest-repeat \
     python3-pytest-rerunfailures \
     && rm -rf /var/lib/apt/lists/*
-
-# setup sources.list
-RUN echo "deb http://packages.ros.org/ros2/ubuntu jammy main" > /etc/apt/sources.list.d/ros2-latest.list
-
-# setup keys
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
-# setup environment
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -118,11 +115,13 @@ WORKDIR /
 # Set ROS and ignition versions and install them
 ARG ROS_DISTRO
 ARG IGNITION_VERSION
-ENV ROS_DISTRO ${ROS_DISTRO}
-ENV IGNITION_VERSION ${IGNITION_VERSION}
+ENV ROS_DISTRO=${ROS_DISTRO}
+ENV IGNITION_VERSION=${IGNITION_VERSION}
 
 # Fully install ros2 instead of bootstrapping it and install rqt for debugging and rosbridge for web-based visualisation
-RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base ros-dev-tools ros-$ROS_DISTRO-rqt* ros-$ROS_DISTRO-rosbridge-server
+RUN apt-get update && apt-get install -y ros-$ROS_DISTRO-ros-base
+
+RUN apt-get update && apt-get install -q -y --no-install-recommends ros-dev-tools ros-$ROS_DISTRO-rqt* ros-$ROS_DISTRO-rosbridge-server
 
 # Install ignition gazebo
 #RUN apt-get install -y ros-$ROS_DISTRO-ros-ign ignition-$IGNITION_VERSION
