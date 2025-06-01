@@ -29,7 +29,7 @@ ENV ROS2_WS=$ROS2_WS
 # ------------------------
 # https://github.com/osrf/docker_images/blob/master/ros2/source/devel/Dockerfile
 # setup timezone
-RUN apt update && apt install locales \
+RUN apt-get update && apt-get install -y locales \
     && locale-gen en_US en_US.UTF-8 \
     && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
