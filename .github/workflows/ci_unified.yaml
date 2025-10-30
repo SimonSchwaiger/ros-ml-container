@@ -27,7 +27,7 @@ jobs:
 
   build:
     needs: generate_matrix
-    runs-on: ubuntu-latest
+    runs-on: ${{ contains(matrix.TAG, '_arm') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     permissions: write-all
     strategy:
       matrix: ${{fromJson(needs.generate_matrix.outputs.matrix)}}

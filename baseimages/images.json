@@ -71,6 +71,16 @@
     },
 
     {
+        "TAG": "ros2_humble_opensource_arm",
+        "DOCKERFILE": "Dockerfile.humble",
+        "BASE_DOCKERFILE": "Dockerfile.standard",
+        "BASEIMAGE": "arm64v8/ubuntu:jammy",
+        "ROS_DISTRO": "humble",
+        "PYTHONVER" : "3.10",
+        "ROS2_WS" : "/opt/ros2_ws"
+    },
+
+    {
         "TAG": "ros2_humble_nvidia",
         "DOCKERFILE": "Dockerfile.humble",
         "BASE_DOCKERFILE": "Dockerfile.nvidia",
